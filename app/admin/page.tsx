@@ -11,36 +11,10 @@ export default function AdminPage() {
             <div className="w-full max-w-3xl">
 
                 <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-                    Admin Panel
+                    Панель адміністратора
                 </h1>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-
-                    {/* Categories */}
-                    <button
-                        onClick={() => router.push("/admin/categories")}
-                        className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition"
-                    >
-                        <div className="text-lg font-semibold text-gray-800 group-hover:text-blue-600">
-                            Categories
-                        </div>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Manage product categories
-                        </p>
-                    </button>
-
-                    {/* Filters */}
-                    <button
-                        onClick={() => router.push("/admin/filters")}
-                        className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition"
-                    >
-                        <div className="text-lg font-semibold text-gray-800 group-hover:text-green-600">
-                            Filters
-                        </div>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Sizes, colors, attributes
-                        </p>
-                    </button>
 
                     {/* Products */}
                     <button
@@ -48,10 +22,10 @@ export default function AdminPage() {
                         className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition"
                     >
                         <div className="text-lg font-semibold text-gray-800 group-hover:text-purple-600">
-                            Products
+                            Товари
                         </div>
                         <p className="text-sm text-gray-500 mt-2">
-                            Manage catalog items
+                            Керування товарами каталогу
                         </p>
                     </button>
 
