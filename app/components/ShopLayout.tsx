@@ -1,0 +1,154 @@
+"use client";
+
+import {ReactNode} from "react";
+import {useRouter} from "next/navigation";
+
+interface ShopLayoutProps {
+    children: ReactNode;
+}
+
+export function ShopLayout({children}: ShopLayoutProps) {
+    const router = useRouter();
+
+    return (
+        <main className="min-h-screen bg-[#F6F4F0] pb-24 text-[#6E2A39]">
+            <header className="sticky top-0 z-20 border-b border-[#E5DED6] bg-[#F6F4F0]/95 backdrop-blur">
+                <div className="relative flex h-20 w-full items-center justify-center px-5">
+                    <button
+                        type="button"
+                        onClick={() => router.push("/")}
+                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+                        style={{ cursor: "pointer" }}
+                    >
+                        <div className="font-serif text-5xl tracking-[0.35em] text-[#6E2A39]">
+                            ZUNA
+                        </div>
+                        <div className="-mt-1 text-xs tracking-[0.45em] text-[#8A766C]">
+                            intimates
+                        </div>
+                    </button>
+                </div>
+            </header>
+
+            <section className="relative h-[520px] overflow-hidden bg-[#F1ECE5]">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#E5DED6] via-[#F1ECE5] to-[#D8C7BD]"/>
+
+                <div className="relative mx-auto flex h-full max-w-7xl items-center px-8">
+                    <div className="max-w-md text-[#6E2A39]">
+                        <h1 className="font-serif text-6xl leading-none tracking-wide sm:text-7xl">
+                            soft
+                            <br/>
+                            is <span className="italic">power</span>
+                        </h1>
+
+                        <div className="mt-10 h-px w-12 bg-[#6E2A39]"/>
+
+                        <div className="mt-6 text-sm tracking-[0.2em] text-[#8A766C]">
+                            new collection →
+                        </div>
+                    </div>
+                </div>
+
+                <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3">
+                    {[0, 1, 2, 3, 4].map((item) => (
+                        <span
+                            key={item}
+                            className={`h-2 w-2 rounded-full ${
+                                item === 0 ? "bg-[#6E2A39]" : "bg-[#6E2A39]/30"
+                            }`}
+                        />
+                    ))}
+                </div>
+            </section>
+
+            {children}
+
+            <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#E5DED6] bg-[#F1ECE5]/95 backdrop-blur">
+                <div className="mx-auto grid h-20 max-w-4xl grid-cols-3 divide-x divide-[#E5DED6] px-4 text-[#6E2A39]">
+                    <button
+                        type="button"
+                        className="flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
+                        style={{ cursor: "pointer" }}
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="h-7 w-7"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M10.5 18C14.6421 18 18 14.6421 18 10.5C18 6.35786 14.6421 3 10.5 3C6.35786 3 3 6.35786 3 10.5C3 14.6421 6.35786 18 10.5 18Z"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                            />
+                            <path
+                                d="M16 16L21 21"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                            />
+                        </svg>
+                        пошук
+                    </button>
+
+                    <button
+                        type="button"
+                        className="relative flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
+                        style={{ cursor: "pointer" }}
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="h-7 w-7"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M7 8H17L18 21H6L7 8Z"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinejoin="round"
+                            />
+                            <path
+                                d="M9 8V6C9 4.34315 10.3431 3 12 3C13.6569 3 15 4.34315 15 6V8"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                            />
+                        </svg>
+                        кошик
+                        <span className="absolute top-3 left-1/2 ml-4 flex h-5 w-5 items-center justify-center rounded-full bg-[#6E2A39] text-[10px] text-[#F6F4F0]">
+                            0
+                        </span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
+                        style={{ cursor: "pointer" }}
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="h-7 w-7"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M21 3L10.5 13.5"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                            />
+                            <path
+                                d="M21 3L14.5 21L10.5 13.5L3 9.5L21 3Z"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                        direct
+                    </button>
+                </div>
+            </nav>
+        </main>
+    );
+}

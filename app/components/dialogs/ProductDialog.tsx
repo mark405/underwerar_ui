@@ -5,27 +5,43 @@ import {ProductDTO} from "@/app/types/product";
 import {CategoryService} from "@/app/api/category";
 import {CategoryDTO} from "@/app/types/category";
 import {
-    briefStyleOptions,
-    bustModelOptions,
-    colorOptions,
     circumferenceOptions,
+    colorOptions,
     cupOptions,
     featureOptions,
     materialOptions,
     sizeOptions
 } from "@/app/constants/productOptions";
 import {ProductService} from "@/app/api/product";
-
+interface ProductDialogPayload {
+    name: string;
+    mainImage?: File;
+    images: File[];
+    imagesToDelete: string[];
+    circumference?: string;
+    cup?: string;
+    bustModel?: string;
+    color: string;
+    material: string;
+    features: string;
+    price?: number;
+    inStock: boolean;
+    size: string;
+    briefStyle?: string;
+    categoryId: number;
+}
 interface ProductDialogProps {
     open: boolean;
     selected: ProductDTO | null;
+    fixedCategory?: CategoryDTO | null;
     onClose: () => void;
-    onSubmit: (payload: any) => void;
+    onSubmit: (payload: ProductDialogPayload) => void;
 }
 
 export function ProductDialog({
                                   open,
                                   selected,
+                                  fixedCategory = null,
                                   onClose,
                                   onSubmit
                               }: ProductDialogProps) {
@@ -46,12 +62,13 @@ export function ProductDialog({
     const [price, setPrice] = useState<number | "">("");
     const [inStock, setInStock] = useState(true);
 
-    const [bustModel, setBustModel] = useState("");
     const [size, setSize] = useState("");
-    const [briefStyle, setBriefStyle] = useState("");
 
     const [categories, setCategories] = useState<CategoryDTO[]>([]);
     const [categoryId, setCategoryId] = useState<number | "">("");
+    const [categoryLevels, setCategoryLevels] = useState<CategoryDTO[][]>([]);
+    const [selectedCategoryPath, setSelectedCategoryPath] = useState<number[]>([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
     const [loadingProduct, setLoadingProduct] = useState(false);
 
     const [errors, setErrors] = useState<{
@@ -59,14 +76,107 @@ export function ProductDialog({
         categoryId?: string;
     }>({});
 
-    const isBriefCategory = categoryId === 1;
-    const isBraCategory = categoryId === 2;
+    const isEditing = Boolean(selected);
+    const isBraCategory = categoryId === 1;
 
     const getImageUrl = (image: string) =>
         `${process.env.NEXT_PUBLIC_API_URL}/${image.replace(/\\/g, "/")}`;
 
+    const inputClass =
+        "w-full rounded-2xl border border-[#E5DED6] bg-[#F6F4F0] px-4 py-3 text-sm text-[#6E2A39] outline-none transition placeholder:text-[#8A766C] focus:border-[#6E2A39] focus:ring-2 focus:ring-[#6E2A39]/15";
+
+    const sectionClass =
+        "rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5]/80 p-5";
+
+    const labelCardClass =
+        "rounded-[2rem] border border-dashed border-[#E5DED6] bg-[#F6F4F0] p-4";
+
+    const renderSelectedCategoryInfo = () => {
+        const productCategory = selected?.category;
+        const parentCategory = productCategory?.parent;
+        if (!productCategory) {
+            return (
+                <div className="mt-1 font-semibold text-gray-900">
+                    Категорія не вказана
+                </div>
+            );
+        }
+
+        if (parentCategory) {
+            return (
+                <div className="mt-2 space-y-2">
+                    <div>
+                        <div className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                            Категорія
+                        </div>
+                        <div className="font-semibold text-gray-900">
+                            {parentCategory.name}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                            Підкатегорія
+                        </div>
+                        <div className="font-semibold text-gray-900">
+                            {productCategory.name}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div className="mt-2">
+                <div className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                    Категорія
+                </div>
+                <div className="font-semibold text-gray-900">
+                    {productCategory.name}
+                </div>
+            </div>
+        );
+    };
+    const handleCategorySelect = async (levelIndex: number, value: string) => {
+        const selectedId = value === "" ? "" : Number(value);
+        const nextPath = selectedCategoryPath.slice(0, levelIndex);
+
+        setErrors((prev) => ({...prev, categoryId: undefined}));
+
+        if (selectedId === "") {
+            setSelectedCategoryPath(nextPath);
+            setCategoryLevels((prev) => prev.slice(0, levelIndex + 1));
+            setCategoryId("");
+            return;
+        }
+
+        nextPath[levelIndex] = selectedId;
+        setSelectedCategoryPath(nextPath);
+        setCategoryLevels((prev) => prev.slice(0, levelIndex + 1));
+        setLoadingCategories(true);
+
+        try {
+            const children = await CategoryService.findAll(selectedId);
+
+            if (children.length > 0) {
+                setCategoryLevels((prev) => [
+                    ...prev.slice(0, levelIndex + 1),
+                    children,
+                ]);
+                setCategoryId("");
+                return;
+            }
+
+            setCategoryId(selectedId);
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
     useEffect(() => {
-        CategoryService.findAll(0, 100).then(setCategories);
+        CategoryService.findAll().then((rootCategories) => {
+            setCategories(rootCategories);
+            setCategoryLevels([rootCategories]);
+        });
     }, []);
 
     useEffect(() => {
@@ -88,10 +198,12 @@ export function ProductDialog({
             setFeatures("");
             setPrice("");
             setInStock(true);
-            setBustModel("");
             setSize("");
-            setBriefStyle("");
-            setCategoryId("");
+
+            setCategoryId(fixedCategory?.id ?? "");
+            setSelectedCategoryPath([]);
+            setCategoryLevels(fixedCategory ? [] : categories.length > 0 ? [categories] : []);
+
             setErrors({});
         };
 
@@ -104,10 +216,9 @@ export function ProductDialog({
             setFeatures(product.features ?? "");
             setPrice(product.price ?? "");
             setInStock(product.inStock ?? true);
-            setBustModel(product.bustModel ?? "");
             setSize(product.size ?? "");
-            setBriefStyle(product.briefStyle ?? "");
             setCategoryId(product.category?.id ?? "");
+            setSelectedCategoryPath([]);
 
             setMainImage(undefined);
             setImages([]);
@@ -126,19 +237,15 @@ export function ProductDialog({
         ProductService.findOne(selected.id)
             .then(fillForm)
             .finally(() => setLoadingProduct(false));
-    }, [selected, open]);
+    }, [selected, open, fixedCategory, categories]);
 
     useEffect(() => {
         if (!isBraCategory) {
             setCircumference("");
             setCup("");
-            setBustModel("");
         }
 
-        if (!isBriefCategory) {
-            setBriefStyle("");
-        }
-    }, [isBraCategory, isBriefCategory]);
+    }, [isBraCategory]);
 
     if (!open) return null;
 
@@ -178,7 +285,6 @@ export function ProductDialog({
 
             circumference: isBraCategory ? circumference : undefined,
             cup: isBraCategory ? cup : undefined,
-            bustModel: isBraCategory ? bustModel : undefined,
 
             color,
             material,
@@ -188,7 +294,6 @@ export function ProductDialog({
             inStock,
 
             size,
-            briefStyle: isBriefCategory ? briefStyle : undefined,
 
             categoryId: Number(categoryId),
         };
@@ -197,15 +302,15 @@ export function ProductDialog({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-            <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-gray-200 bg-white p-6 text-black shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#6E2A39]/40 px-4 backdrop-blur-sm">
+            <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-[#E5DED6] bg-[#F6F4F0] p-6 text-[#6E2A39] shadow-2xl">
 
-                <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4">
+                <div className="mb-6 flex items-center justify-between border-b border-[#E5DED6] pb-4">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900">
+                        <h2 className="font-serif text-3xl font-bold text-[#6E2A39]">
                             {selected ? "Редагувати товар" : "Створити товар"}
                         </h2>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-[#8A766C]">
                             Заповніть інформацію про товар, фото та характеристики.
                         </p>
                     </div>
@@ -213,7 +318,7 @@ export function ProductDialog({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-full px-3 py-1 text-xl text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1 text-xl text-[#6E2A39] transition hover:bg-[#E5DED6]"
                     >
                         ✕
                     </button>
@@ -221,17 +326,17 @@ export function ProductDialog({
 
                 <div className="space-y-6">
 
-                    <section className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                    <section className={sectionClass}>
+                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-[#8A766C]">
                             Основна інформація
                         </h3>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <input
-                                    className={`input-light ${
+                                    className={`${inputClass} ${
                                         errors.name
-                                            ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500"
+                                            ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/15"
                                             : ""
                                     }`}
                                     placeholder="Назва"
@@ -249,26 +354,80 @@ export function ProductDialog({
                             </div>
 
                             <div>
-                                <select
-                                    className={`input-light ${
-                                        errors.categoryId
-                                            ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500"
-                                            : ""
-                                    }`}
-                                    value={categoryId}
-                                    onChange={(e) => {
-                                        setCategoryId(e.target.value === "" ? "" : Number(e.target.value));
-                                        setErrors((prev) => ({...prev, categoryId: undefined}));
-                                    }}
-                                >
-                                    <option value="">Оберіть категорію</option>
-                                    {categories.map((category) => (
-                                        <option key={category.id} value={category.id}>
-                                            {category.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.categoryId && (
+                                {!isEditing && fixedCategory && (
+                                    <div className="rounded-2xl border border-[#E5DED6] bg-[#F6F4F0] px-4 py-3 text-sm text-[#6E2A39]">
+                                        <div className="text-xs font-medium uppercase tracking-wide text-[#8A766C]">
+                                            Категорія товару
+                                        </div>
+
+                                        {fixedCategory.parent?.name && (
+                                            <div className="mt-2">
+                                                <div className="text-xs font-medium uppercase tracking-wide text-[#8A766C]">
+                                                    Категорія
+                                                </div>
+                                                <div className="font-semibold text-[#6E2A39]">
+                                                    {fixedCategory.parent.name}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="mt-2">
+                                            <div className="text-xs font-medium uppercase tracking-wide text-[#8A766C]">
+                                                {fixedCategory.parent ? "Підкатегорія" : "Категорія"}
+                                            </div>
+                                            <div className="font-semibold text-[#6E2A39]">
+                                                {fixedCategory.name}
+                                            </div>
+                                        </div>
+
+                                        <p className="mt-3 text-xs text-[#8A766C]">
+                                            Товар буде створено в поточній категорії.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {!isEditing && !fixedCategory && (
+                                    <div className="space-y-3">
+                                        {categoryLevels.map((levelCategories, levelIndex) => (
+                                            <select
+                                                key={levelIndex}
+                                                className={`${inputClass} ${
+                                                    errors.categoryId && levelIndex === categoryLevels.length - 1
+                                                        ? "!border-red-500 focus:!border-red-500 focus:!ring-red-500/15"
+                                                        : ""
+                                                }`}
+                                                value={selectedCategoryPath[levelIndex] ?? ""}
+                                                onChange={(e) => handleCategorySelect(levelIndex, e.target.value)}
+                                            >
+                                                <option value="">
+                                                    {levelIndex === 0
+                                                        ? "Оберіть категорію"
+                                                        : "Оберіть підкатегорію"}
+                                                </option>
+
+                                                {levelCategories.map((category) => (
+                                                    <option key={category.id} value={category.id}>
+                                                        {category.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ))}
+
+                                        {loadingCategories && (
+                                            <p className="text-xs text-gray-500">
+                                                Завантаження підкатегорій...
+                                            </p>
+                                        )}
+
+                                        {errors.categoryId && (
+                                            <p className="text-xs text-red-600">
+                                                {errors.categoryId}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {isEditing && errors.categoryId && (
                                     <p className="mt-1 text-xs text-red-600">
                                         {errors.categoryId}
                                     </p>
@@ -277,7 +436,7 @@ export function ProductDialog({
 
                             <input
                                 type="number"
-                                className="input-light"
+                                className={inputClass}
                                 placeholder="Ціна"
                                 value={price}
                                 onChange={(e) =>
@@ -286,7 +445,7 @@ export function ProductDialog({
                             />
 
                             <select
-                                className="input-light"
+                                className={inputClass}
                                 value={size}
                                 onChange={(e) => setSize(e.target.value)}
                             >
@@ -300,15 +459,15 @@ export function ProductDialog({
                         </div>
                     </section>
 
-                    <section className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                    <section className={sectionClass}>
+                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-[#8A766C]">
                             Фото товару
                         </h3>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
-                            <label className="rounded-2xl border border-dashed border-gray-300 bg-white p-4">
-                                <span className="mb-2 block text-sm font-medium text-gray-700">
+                            <label className={labelCardClass}>
+                                <span className="mb-2 block text-sm font-medium text-[#6E2A39]">
                                     Головне фото
                                 </span>
 
@@ -354,8 +513,8 @@ export function ProductDialog({
                                 )}
                             </label>
 
-                            <label className="rounded-2xl border border-dashed border-gray-300 bg-white p-4">
-                                <span className="mb-2 block text-sm font-medium text-gray-700">
+                            <label className={labelCardClass}>
+                                <span className="mb-2 block text-sm font-medium text-[#6E2A39]">
                                     Додаткові фото
                                 </span>
 
@@ -442,8 +601,8 @@ export function ProductDialog({
                         </div>
                     </section>
 
-                    <section className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                    <section className={sectionClass}>
+                        <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.15em] text-[#8A766C]">
                             Характеристики
                         </h3>
 
@@ -451,7 +610,7 @@ export function ProductDialog({
                             {isBraCategory && (
                                 <>
                                     <select
-                                        className="input-light"
+                                        className={inputClass}
                                         value={circumference}
                                         onChange={(e) => setCircumference(e.target.value)}
                                     >
@@ -464,7 +623,7 @@ export function ProductDialog({
                                     </select>
 
                                     <select
-                                        className="input-light"
+                                        className={inputClass}
                                         value={cup}
                                         onChange={(e) => setCup(e.target.value)}
                                     >
@@ -475,39 +634,11 @@ export function ProductDialog({
                                             </option>
                                         ))}
                                     </select>
-
-                                    <select
-                                        className="input-light"
-                                        value={bustModel}
-                                        onChange={(e) => setBustModel(e.target.value)}
-                                    >
-                                        <option value="">Оберіть модель бюста</option>
-                                        {bustModelOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
                                 </>
                             )}
 
-                            {isBriefCategory && (
-                                <select
-                                    className="input-light"
-                                    value={briefStyle}
-                                    onChange={(e) => setBriefStyle(e.target.value)}
-                                >
-                                    <option value="">Оберіть модель трусиків</option>
-                                    {briefStyleOptions.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            )}
-
                             <select
-                                className="input-light"
+                                className={inputClass}
                                 value={color}
                                 onChange={(e) => setColor(e.target.value)}
                             >
@@ -520,7 +651,7 @@ export function ProductDialog({
                             </select>
 
                             <select
-                                className="input-light"
+                                className={inputClass}
                                 value={material}
                                 onChange={(e) => setMaterial(e.target.value)}
                             >
@@ -533,7 +664,7 @@ export function ProductDialog({
                             </select>
 
                             <select
-                                className="input-light"
+                                className={inputClass}
                                 value={features}
                                 onChange={(e) => setFeatures(e.target.value)}
                             >
@@ -548,21 +679,21 @@ export function ProductDialog({
                     </section>
 
                     {selected && (
-                        <label className="flex items-center gap-2 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
-                            <input
-                                type="checkbox"
-                                checked={inStock}
-                                onChange={(e) => setInStock(e.target.checked)}
-                            />
-                            В наявності
-                        </label>
+                    <label className="flex items-center gap-2 rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5]/80 p-4 text-sm text-[#6E2A39]">
+                        <input
+                            type="checkbox"
+                            checked={inStock}
+                            onChange={(e) => setInStock(e.target.checked)}
+                        />
+                        В наявності
+                    </label>
                     )}
 
-                    <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+                    <div className="flex justify-end gap-3 border-t border-[#E5DED6] pt-5">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                            className="rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2.5 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6]"
                         >
                             Скасувати
                         </button>
@@ -570,7 +701,7 @@ export function ProductDialog({
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                            className="rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition hover:bg-[#5b2230]"
                         >
                             {selected ? "Оновити" : "Створити"}
                         </button>

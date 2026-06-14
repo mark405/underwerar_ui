@@ -16,9 +16,7 @@ export interface ProductDTO {
     price?: number | null;
     inStock?: boolean | null;
 
-    bustModel?: string | null;
     size?: string | null;
-    briefStyle?: string | null;
 
     category: CategoryDTO;
 }

@@ -2,6 +2,7 @@ export interface CategoryDTO {
     id: number;
     name: string;
     image?: string | null;
+    parent?: CategoryDTO | null;
 }
 
 export interface CategoryCreateRequest {

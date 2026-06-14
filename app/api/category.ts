@@ -2,12 +2,12 @@ import { api } from "./api";
 import {CategoryCreateRequest, CategoryDTO, CategoryUpdateRequest} from "@/app/types/category";
 
 export const CategoryService = {
-    findAll: async (page = 0, size = 20) => {
+    findAll: async (parentId?: number) => {
         const res = await api.get("/category", {
-            params: { page, size },
+            params: { ...(parentId !== undefined ? {parentId} : {}) },
         });
 
-        return res.data.content as CategoryDTO[];
+        return res.data as CategoryDTO[];
     },
     findOne: async (id: number) => {
         const res = await api.get(`/category/${id}`);

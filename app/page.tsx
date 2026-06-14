@@ -1,9 +1,7 @@
 "use client";
 
-import CategoryPage from "@/app/category/page";
+import {CategoryCatalog} from "@/app/components/CategoryCatalog";
 
-export default function Home() {
-    return (
-        <CategoryPage/>
-    );
+export default function CategoryPage() {
+    return <CategoryCatalog/>;
 }
