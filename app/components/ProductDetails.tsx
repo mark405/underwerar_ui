@@ -15,6 +15,7 @@ import {
     materialOptions,
     sizeOptions
 } from "@/app/constants/productOptions";
+import {useCart} from "@/app/components/CartContext";
 
 interface ProductDetailsProps {
     isAdmin?: boolean;
@@ -43,7 +44,7 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
-
+    const {addToCart} = useCart();
     const returnCategoryId = searchParams.get("categoryId");
 
     const productId =
@@ -281,7 +282,27 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
                                         {product.inStock ? "В наявності" : "Немає в наявності"}
                                     </div>
                                 </div>
+                                {!isAdmin && (
+                                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => addToCart(product)}
+                                            className="rounded-full border border-[#6E2A39] bg-[#F6F4F0] px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                                            style={{cursor: "pointer"}}
+                                        >
+                                            Додати в кошик
+                                        </button>
 
+                                        <button
+                                            type="button"
+                                            onClick={() => router.push(`/order?productId=${product.id}&returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`)}
+                                            className="rounded-full bg-[#6E2A39] px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition hover:bg-[#5b2230]"
+                                            style={{cursor: "pointer"}}
+                                        >
+                                            Замовити одразу
+                                        </button>
+                                    </div>
+                                )}
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     {isBraCategory && (
                                         <>

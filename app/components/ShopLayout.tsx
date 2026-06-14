@@ -2,6 +2,7 @@
 
 import {ReactNode} from "react";
 import {useRouter} from "next/navigation";
+import {useCart} from "@/app/components/CartContext";
 
 interface ShopLayoutProps {
     children: ReactNode;
@@ -9,6 +10,7 @@ interface ShopLayoutProps {
 
 export function ShopLayout({children}: ShopLayoutProps) {
     const router = useRouter();
+    const {totalItems} = useCart();
 
     return (
         <main className="min-h-screen bg-[#F6F4F0] pb-24 text-[#6E2A39]">
@@ -93,6 +95,7 @@ export function ShopLayout({children}: ShopLayoutProps) {
 
                     <button
                         type="button"
+                        onClick={() => router.push("/cart")}
                         className="relative flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
                         style={{ cursor: "pointer" }}
                     >
@@ -117,7 +120,7 @@ export function ShopLayout({children}: ShopLayoutProps) {
                         </svg>
                         кошик
                         <span className="absolute top-3 left-1/2 ml-4 flex h-5 w-5 items-center justify-center rounded-full bg-[#6E2A39] text-[10px] text-[#F6F4F0]">
-                            0
+                            {totalItems}
                         </span>
                     </button>
 
