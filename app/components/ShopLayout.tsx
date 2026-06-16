@@ -124,10 +124,11 @@ export function ShopLayout({children}: ShopLayoutProps) {
                         </span>
                     </button>
 
-                    <button
-                        type="button"
+                    <a
+                        href="https://www.instagram.com/zuna.intimates/"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
-                        style={{ cursor: "pointer" }}
                     >
                         <svg
                             viewBox="0 0 24 24"
@@ -149,7 +150,7 @@ export function ShopLayout({children}: ShopLayoutProps) {
                             />
                         </svg>
                         direct
-                    </button>
+                    </a>
                 </div>
             </nav>
         </main>

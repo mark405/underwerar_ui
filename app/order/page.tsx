@@ -6,6 +6,8 @@ import {ShopLayout} from "@/app/components/ShopLayout";
 import {useCart} from "@/app/components/CartContext";
 import {ProductDTO} from "@/app/types/product";
 import {ProductService} from "@/app/api/product";
+import {NovaPostService} from "@/app/api/novapost";
+import {SettlementAreaDTO, SettlementDTO, WareHouseDTO} from "@/app/types/novapost";
 
 export default function OrderPage() {
     const router = useRouter();
@@ -14,11 +16,25 @@ export default function OrderPage() {
     const returnTo = searchParams.get("returnTo") ?? "/";
     const [singleProduct, setSingleProduct] = useState<ProductDTO | null>(null);
     const {items, clearCart} = useCart();
+    const [areas, setAreas] = useState<SettlementAreaDTO[]>([]);
+    const [selectedArea, setSelectedArea] = useState<string>("");
 
+    const [settlements, setSettlements] = useState<SettlementDTO[]>([]);
+    const [selectedSettlement, setSelectedSettlement] = useState<SettlementDTO | null>(null);
+    const [settlementSearch, setSettlementSearch] = useState("");
+    const [settlementPage, setSettlementPage] = useState(1);
+    const [hasMoreSettlements, setHasMoreSettlements] = useState(true);
+    const [warehouses, setWarehouses] = useState<WareHouseDTO[]>([]);
+    const [selectedWarehouse, setSelectedWarehouse] =
+        useState<WareHouseDTO | null>(null);
     const productId = searchParams.get("productId");
     const fromCart = searchParams.get("fromCart") === "true";
     const [showToast, setShowToast] = useState(false);
-
+    const [warehouseSearch, setWarehouseSearch] = useState("");
+    const [warehouseDropdownOpen, setWarehouseDropdownOpen] =
+        useState(false);
+    const [settlementDropdownOpen, setSettlementDropdownOpen] =
+        useState(false);
     const [form, setForm] = useState({
         firstName: "",
         secondName: "",
@@ -27,10 +43,43 @@ export default function OrderPage() {
         shippingType: "",
     });
     useEffect(() => {
+        if (form.shippingType !== "nova_poshta") {
+            return;
+        }
+
+        NovaPostService.getAreas()
+            .then(setAreas);
+    }, [form.shippingType]);
+    useEffect(() => {
+        if (!selectedArea) {
+            return;
+        }
+
+        NovaPostService.getSettlements(
+            selectedArea,
+            settlementSearch,
+            settlementPage
+        ).then((page) => {
+            if (settlementPage === 1) {
+                setSettlements(page.content);
+            } else {
+                setSettlements(prev => [...prev, ...page.content]);
+            }
+
+            setHasMoreSettlements(!page.last);
+        });
+    }, [selectedArea, settlementSearch, settlementPage]);
+    useEffect(() => {
         if (!productId || fromCart) return;
 
         ProductService.findOne(Number(productId)).then(setSingleProduct);
     }, [productId, fromCart]);
+    useEffect(() => {
+        setSettlements([]);
+        setSettlementPage(1);
+        setHasMoreSettlements(true);
+        setSelectedSettlement(null);
+    }, [selectedArea]);
     const orderItems = useMemo(() => {
         if (fromCart) return items;
 
@@ -50,6 +99,10 @@ export default function OrderPage() {
         );
     }, [orderItems]);
     useEffect(() => {
+        setSelectedWarehouse(null);
+        setWarehouseSearch("");
+    }, [selectedSettlement]);
+    useEffect(() => {
         if (!showToast) {
             return;
         }
@@ -60,6 +113,22 @@ export default function OrderPage() {
 
         return () => window.clearTimeout(timeoutId);
     }, [showToast, router, returnTo]);
+
+    useEffect(() => {
+        if (!selectedSettlement) {
+            setWarehouses([]);
+            return;
+        }
+
+        NovaPostService.getWarehouses(
+            selectedSettlement.Description,
+            warehouseSearch,
+            1,
+            20
+        ).then((page) => {
+            setWarehouses(page.content);
+        });
+    }, [selectedSettlement, warehouseSearch]);
 
     const inputClass =
         "w-full rounded-2xl border border-[#E5DED6] bg-[#F6F4F0] px-4 py-3 text-sm text-[#6E2A39] outline-none transition placeholder:text-[#8A766C] focus:border-[#6E2A39] focus:ring-2 focus:ring-[#6E2A39]/15";
@@ -82,7 +151,8 @@ export default function OrderPage() {
     return (
         <ShopLayout>
             {showToast && (
-                <div className="fixed right-5 top-5 z-[100] max-w-sm rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-5 text-[#6E2A39] shadow-2xl">
+                <div
+                    className="fixed right-5 top-5 z-[100] max-w-sm rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-5 text-[#6E2A39] shadow-2xl">
                     <div className="font-serif text-2xl font-bold">
                         Замовлення прийнято
                     </div>
@@ -166,6 +236,139 @@ export default function OrderPage() {
                             <option value="ukr_poshta">Укрпошта</option>
                             <option value="pickup">Самовивіз</option>
                         </select>
+                        {form.shippingType === "nova_poshta" && (
+                            <>
+                                <select
+                                    className={`${inputClass} sm:col-span-2`}
+                                    value={selectedArea}
+                                    onChange={(e) => {
+                                        setSelectedArea(e.target.value);
+                                        setSelectedSettlement(null);
+                                        setSelectedWarehouse(null);
+                                        setSettlementSearch("");
+                                        setWarehouses([]);
+                                    }}
+                                >
+                                    <option value="">Оберіть область</option>
+
+                                    {areas.map((area) => (
+                                        <option
+                                            key={area.Ref}
+                                            value={area.Ref}
+                                        >
+                                            {area.Description}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="relative sm:col-span-2">
+                                    <input
+                                        className={inputClass}
+                                        placeholder="Пошук міста..."
+                                        value={settlementSearch}
+                                        onFocus={() => setSettlementDropdownOpen(true)}
+                                        onChange={(e) => {
+                                            setSettlementSearch(e.target.value);
+                                            setSettlementPage(1);
+                                            setSelectedSettlement(null);
+                                            setSettlementDropdownOpen(true);
+                                        }}
+                                        disabled={!selectedArea}
+                                    />
+
+                                    {settlementDropdownOpen && settlements.length > 0 && (
+                                        <div
+                                            className="
+                absolute
+                left-0
+                right-0
+                top-full
+                z-50
+                mt-1
+                max-h-60
+                overflow-auto
+                rounded-xl
+                border
+                border-[#E5DED6]
+                bg-[#F6F4F0]
+                shadow-lg
+            "
+                                            onScroll={(e) => {
+                                                const el = e.currentTarget;
+
+                                                const isBottom =
+                                                    el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+
+                                                if (isBottom && hasMoreSettlements) {
+                                                    setSettlementPage(prev => prev + 1);
+                                                }
+                                            }}
+                                        >
+                                            {settlements.map((city) => (
+                                                <div
+                                                    key={city.Ref}
+                                                    onClick={() => {
+                                                        setSelectedSettlement(city);
+                                                        setSettlementSearch(city.Description);
+                                                        setSettlementDropdownOpen(false);
+                                                    }}
+                                                    className="cursor-pointer px-4 py-3 hover:bg-[#E5DED6]"
+                                                >
+                                                    {city.Description}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="relative sm:col-span-2">
+                                    <input
+                                        className={inputClass}
+                                        placeholder="Пошук відділення..."
+                                        value={warehouseSearch}
+                                        onFocus={() => setWarehouseDropdownOpen(true)}
+                                        onChange={(e) => {
+                                            setWarehouseSearch(e.target.value);
+                                            setWarehouseDropdownOpen(true);
+                                        }}
+                                        disabled={!selectedSettlement}
+                                    />
+
+                                    {warehouseDropdownOpen && warehouses.length > 0 && (
+                                        <div
+                                            className="
+                absolute
+                left-0
+                right-0
+                top-full
+                z-50
+                mt-1
+                max-h-60
+                overflow-auto
+                rounded-xl
+                border
+                border-[#E5DED6]
+                bg-[#F6F4F0]
+                shadow-lg
+            "
+                                        >
+                                            {warehouses.map((warehouse) => (
+                                                <div
+                                                    key={warehouse.SiteKey}
+                                                    onClick={() => {
+                                                        setSelectedWarehouse(warehouse);
+                                                        setWarehouseSearch(warehouse.Description);
+                                                        setWarehouseDropdownOpen(false);
+                                                    }}
+                                                    className="cursor-pointer px-4 py-3 hover:bg-[#E5DED6]"
+                                                >
+                                                    {warehouse.Description}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+
+                        )}
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3 border-t border-[#E5DED6] pt-5">

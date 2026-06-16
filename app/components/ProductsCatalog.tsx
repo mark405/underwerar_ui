@@ -542,12 +542,6 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                                     </button>
                                 </div>
                             )}
-
-                            {productsPage && (
-                                <div className="text-center text-sm text-gray-500">
-                                    Знайдено товарів: {productsPage.totalElements}
-                                </div>
-                            )}
                         </>
                     )}
                 </section>
