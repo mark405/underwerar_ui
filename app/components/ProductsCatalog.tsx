@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {ProductService} from "@/app/api/product";
 import {ProductDTO, ProductFilters} from "@/app/types/product";
 import {PageResponse} from "@/app/types/global";
@@ -18,6 +18,7 @@ import {CategoryService} from "@/app/api/category";
 import {CategoryDTO} from "@/app/types/category";
 import { ShopLayout } from "@/app/components/ShopLayout";
 import {ProductDialog} from "@/app/components/dialogs/ProductDialog";
+import {CategoryDialog} from "@/app/components/dialogs/CategoryDialog";
 
 type FilterFormState = {
     name: string;
@@ -70,6 +71,12 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
     const [productDialogOpen, setProductDialogOpen] = useState(false);
     const [productsReloadKey, setProductsReloadKey] = useState(0);
 
+    const categoryFileInputRef = useRef<HTMLInputElement>(null);
+    const [categoryUploadTargetId, setCategoryUploadTargetId] = useState<number | null>(null);
+
+    const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+    const [editingChildCategory, setEditingChildCategory] = useState<CategoryDTO | null>(null);
+
     const [filters, setFilters] = useState<FilterFormState>({
         ...initialFilters,
         categoryId: categoryId ? String(categoryId) : "",
@@ -83,6 +90,103 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
         "w-full rounded-2xl border border-[#E5DED6] bg-[#F6F4F0] px-4 py-3 text-sm text-[#6E2A39] outline-none transition placeholder:text-[#8A766C] focus:border-[#6E2A39] focus:bg-[#F6F4F0] focus:ring-2 focus:ring-[#6E2A39]/15";
     const getImageUrl = (image: string) =>
         `${process.env.NEXT_PUBLIC_API_URL}/${image.replace(/\\/g, "/")}`;
+
+    const reloadChildCategories = () => {
+        if (!categoryId) {
+            return Promise.resolve();
+        }
+
+        return CategoryService.findAll(categoryId).then(setChildCategories);
+    };
+
+    const handleAddChildPhotoClick = (id: number) => {
+        setCategoryUploadTargetId(id);
+        categoryFileInputRef.current?.click();
+    };
+
+    const handleChildFileChange = async (file: File | undefined) => {
+        if (!file || categoryUploadTargetId == null) {
+            return;
+        }
+
+        const target = childCategories.find((childCategory) => childCategory.id === categoryUploadTargetId);
+
+        if (!target) {
+            return;
+        }
+
+        await CategoryService.update({id: categoryUploadTargetId, name: target.name, file});
+        await reloadChildCategories();
+    };
+
+    const handleDeleteChildPhoto = async (id: number) => {
+        if (!window.confirm("Видалити фото категорії?")) {
+            return;
+        }
+
+        await CategoryService.deleteImage(id);
+        await reloadChildCategories();
+    };
+
+    const openCreateChildDialog = () => {
+        setEditingChildCategory(null);
+        setCategoryDialogOpen(true);
+    };
+
+    const openEditChildDialog = (childCategory: CategoryDTO) => {
+        setEditingChildCategory(childCategory);
+        setCategoryDialogOpen(true);
+    };
+
+    const handleChildDialogSubmit = async (name: string) => {
+        if (editingChildCategory) {
+            await CategoryService.update({id: editingChildCategory.id, name});
+        } else if (categoryId) {
+            await CategoryService.create({name, parentId: categoryId});
+        }
+
+        setCategoryDialogOpen(false);
+        await reloadChildCategories();
+    };
+
+    const handleDeleteChildCategory = async (id: number) => {
+        if (!window.confirm("Видалити цю категорію?")) {
+            return;
+        }
+
+        try {
+            await CategoryService.remove(id);
+            await reloadChildCategories();
+        } catch (err) {
+            const status = (err as { response?: { status?: number } })?.response?.status;
+
+            alert(
+                status === 409
+                    ? "Неможливо видалити категорію: спочатку видаліть підкатегорії або товари в ній."
+                    : "Не вдалося видалити категорію."
+            );
+        }
+    };
+
+    const handleMoveChildCategory = async (id: number, direction: "up" | "down") => {
+        const index = childCategories.findIndex((childCategory) => childCategory.id === id);
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+        if (index === -1 || targetIndex < 0 || targetIndex >= childCategories.length) {
+            return;
+        }
+
+        const reordered = [...childCategories];
+        [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+
+        setChildCategories(reordered);
+
+        try {
+            await CategoryService.reorder(reordered.map((childCategory) => childCategory.id));
+        } catch {
+            await reloadChildCategories();
+        }
+    };
 
     useEffect(() => {
         if (!categoryId) {
@@ -186,6 +290,19 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
         setProductsReloadKey((prev) => prev + 1);
     };
 
+    const handleDeleteProduct = async (id: number) => {
+        if (!window.confirm("Видалити цей товар?")) {
+            return;
+        }
+
+        try {
+            await ProductService.remove(id);
+            setProductsReloadKey((prev) => prev + 1);
+        } catch {
+            alert("Не вдалося видалити товар.");
+        }
+    };
+
     const categoryBasePath = isAdmin ? "/admin/category" : "/category";
     const productBasePath = isAdmin ? "/admin/products" : "/products";
     if (checkingChildren) {
@@ -220,45 +337,155 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                         ← Назад до категорій
                     </button>
 
-                    <section>
+                    <section className="flex flex-wrap items-center justify-between gap-4">
                         <h1 className="text-3xl font-bold text-[#6E2A39]">
                             {category?.name ?? "Категорії"}
                         </h1>
+
+                        {isAdmin && (
+                            <button
+                                type="button"
+                                onClick={openCreateChildDialog}
+                                className="rounded-full bg-[#6E2A39] px-5 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-[#F6F4F0] shadow-sm transition hover:bg-[#5b2230]"
+                                style={{cursor: "pointer"}}
+                            >
+                                + Створити підкатегорію
+                            </button>
+                        )}
                     </section>
 
                     <section>
                         <div className="grid grid-cols-2 gap-x-5 gap-y-9 md:grid-cols-3">
-                            {childCategories.map((childCategory) => (
-                                <button
-                                    key={childCategory.id}
-                                    type="button"
-                                    onClick={() => router.push(`${categoryBasePath}/${childCategory.id}`)}
-                                    className="group text-center"
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    <div className="overflow-hidden rounded-[2.5rem] bg-[#F1ECE5] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
-                                        {childCategory.image ? (
-                                            <img
-                                                src={getImageUrl(childCategory.image)}
-                                                alt={childCategory.name}
-                                                className="aspect-[1.18/1] w-full object-cover transition duration-500 group-hover:scale-105"
-                                            />
-                                        ) : (
-                                            <div className="aspect-[1.18/1] w-full bg-[#F1ECE5]"/>
-                                        )}
-                                    </div>
+                            {childCategories.map((childCategory, index) => (
+                                <div key={childCategory.id} className="group relative text-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => router.push(`${categoryBasePath}/${childCategory.id}`)}
+                                        className="w-full text-center"
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        <div className="overflow-hidden rounded-[2.5rem] bg-[#F1ECE5] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
+                                            {childCategory.image ? (
+                                                <img
+                                                    src={getImageUrl(childCategory.image)}
+                                                    alt={childCategory.name}
+                                                    className="aspect-[1.18/1] w-full object-cover transition duration-500 group-hover:scale-105"
+                                                />
+                                            ) : (
+                                                <div className="aspect-[1.18/1] w-full bg-[#F1ECE5]"/>
+                                            )}
+                                        </div>
 
-                                    <div className="mt-4 text-sm font-medium uppercase tracking-[0.15em] text-[#6E2A39] sm:text-base">
-                                        {childCategory.name}
-                                    </div>
+                                        <div className="mt-4 text-sm font-medium uppercase tracking-[0.15em] text-[#6E2A39] sm:text-base">
+                                            {childCategory.name}
+                                        </div>
 
-                                    <div className="mt-1 text-xl leading-none text-[#6E2A39] transition group-hover:translate-x-1">
-                                        →
-                                    </div>
-                                </button>
+                                        <div className="mt-1 text-xl leading-none text-[#6E2A39] transition group-hover:translate-x-1">
+                                            →
+                                        </div>
+                                    </button>
+
+                                    {isAdmin && (
+                                        <div className="absolute right-2 top-2 z-10 flex gap-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleAddChildPhotoClick(childCategory.id)}
+                                                aria-label="Додати фото"
+                                                className="flex h-8 w-8 items-center justify-center rounded-full bg-[#6E2A39] text-sm font-bold text-[#F6F4F0] shadow-md transition hover:bg-[#5b2230]"
+                                                style={{cursor: "pointer"}}
+                                            >
+                                                +
+                                            </button>
+
+                                            {childCategory.image && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteChildPhoto(childCategory.id)}
+                                                    aria-label="Видалити фото"
+                                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F4F0]/90 text-sm font-bold text-[#6E2A39] shadow-md transition hover:bg-[#F6F4F0]"
+                                                    style={{cursor: "pointer"}}
+                                                >
+                                                    ✕
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {isAdmin && (
+                                        <div className="mt-2 flex items-center justify-center gap-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleMoveChildCategory(childCategory.id, "up")}
+                                                disabled={index === 0}
+                                                aria-label="Перемістити вгору"
+                                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                                style={{cursor: "pointer"}}
+                                            >
+                                                ↑
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => handleMoveChildCategory(childCategory.id, "down")}
+                                                disabled={index === childCategories.length - 1}
+                                                aria-label="Перемістити вниз"
+                                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                                style={{cursor: "pointer"}}
+                                            >
+                                                ↓
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => openEditChildDialog(childCategory)}
+                                                aria-label="Редагувати категорію"
+                                                className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                                                style={{cursor: "pointer"}}
+                                            >
+                                                Редагувати
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteChildCategory(childCategory.id)}
+                                                aria-label="Видалити категорію"
+                                                className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-red-700 transition hover:bg-red-50"
+                                                style={{cursor: "pointer"}}
+                                            >
+                                                Видалити
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     </section>
+
+                    {isAdmin && (
+                        <input
+                            ref={categoryFileInputRef}
+                            type="file"
+                            accept="image/*"
+                            style={{display: "none"}}
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+
+                                handleChildFileChange(file);
+
+                                e.target.value = "";
+                            }}
+                        />
+                    )}
+
+                    {isAdmin && (
+                        <CategoryDialog
+                            open={categoryDialogOpen}
+                            selected={editingChildCategory}
+                            parentName={category?.name}
+                            onClose={() => setCategoryDialogOpen(false)}
+                            onSubmit={handleChildDialogSubmit}
+                        />
+                    )}
                 </section>
             </ShopLayout>
         );
@@ -297,14 +524,25 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                     </div>
 
                     {isAdmin && (
-                        <button
-                            type="button"
-                            onClick={() => setProductDialogOpen(true)}
-                            className="rounded-full bg-[#6E2A39] px-5 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-[#F6F4F0] shadow-sm transition hover:bg-[#5b2230]"
-                            style={{ cursor: "pointer" }}
-                        >
-                            + Створити товар
-                        </button>
+                        <div className="flex flex-wrap gap-3">
+                            <button
+                                type="button"
+                                onClick={openCreateChildDialog}
+                                className="rounded-full border border-[#6E2A39] px-5 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-[#6E2A39] shadow-sm transition hover:bg-[#E5DED6]"
+                                style={{ cursor: "pointer" }}
+                            >
+                                + Створити підкатегорію
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setProductDialogOpen(true)}
+                                className="rounded-full bg-[#6E2A39] px-5 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-[#F6F4F0] shadow-sm transition hover:bg-[#5b2230]"
+                                style={{ cursor: "pointer" }}
+                            >
+                                + Створити товар
+                            </button>
+                        </div>
                     )}
                 </section>
 
@@ -457,52 +695,65 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                         <>
                             <div className="grid grid-cols-2 gap-x-5 gap-y-9 md:grid-cols-3 xl:grid-cols-4">
                                 {productsPage?.content.map((product) => (
-                                    <button
-                                        key={product.id}
-                                        type="button"
-                                        onClick={() => router.push(`${productBasePath}/${product.id}?categoryId=${categoryId}`)}
-                                        className="group text-center"
-                                        style={{ cursor: "pointer" }}
-                                    >
-                                        <div className="overflow-hidden rounded-[2.5rem] bg-[#F1ECE5] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
-                                            {product.image ? (
-                                                <img
-                                                    src={getImageUrl(product.image)}
-                                                    alt={product.name}
-                                                    className="aspect-[1.18/1] w-full object-cover transition duration-500 group-hover:scale-105"
-                                                />
-                                            ) : (
-                                                <div className="flex aspect-[1.18/1] w-full items-center justify-center bg-[#F1ECE5] text-sm text-[#8A766C]">
-                                                    Немає фото
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="mt-4 text-sm font-medium uppercase tracking-[0.15em] text-[#6E2A39] sm:text-base">
-                                            {product.name}
-                                        </div>
-
-                                        <div className="mt-2 text-md font-bold tracking-wide text-[#6E2A39]">
-
-                                            {product.price !== null && product.price !== undefined
-                                                ? `${product.price} грн`
-                                                : "Ціна не вказана"}
-                                        </div>
-
-                                        <div
-                                            className={`mx-auto mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-medium ${
-                                                product.inStock
-                                                    ? "border-[#E5DED6] bg-[#F6F4F0] text-[#6E2A39]"
-                                                    : "border-[#E5DED6] bg-[#F1ECE5] text-[#8A766C]"
-                                            }`}
+                                    <div key={product.id} className="group relative text-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => router.push(`${productBasePath}/${product.id}?categoryId=${categoryId}`)}
+                                            className="w-full text-center"
+                                            style={{ cursor: "pointer" }}
                                         >
-                                            {product.inStock ? "В наявності" : "Немає в наявності"}
-                                        </div>
+                                            <div className="overflow-hidden rounded-[2.5rem] bg-[#F1ECE5] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lg">
+                                                {product.image ? (
+                                                    <img
+                                                        src={getImageUrl(product.image)}
+                                                        alt={product.name}
+                                                        className="aspect-[1.18/1] w-full object-cover transition duration-500 group-hover:scale-105"
+                                                    />
+                                                ) : (
+                                                    <div className="flex aspect-[1.18/1] w-full items-center justify-center bg-[#F1ECE5] text-sm text-[#8A766C]">
+                                                        Немає фото
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                        <div className="mt-2 text-xl leading-none text-[#6E2A39] transition group-hover:translate-x-1">
-                                            →
-                                        </div>
-                                    </button>
+                                            <div className="mt-4 text-sm font-medium uppercase tracking-[0.15em] text-[#6E2A39] sm:text-base">
+                                                {product.name}
+                                            </div>
+
+                                            <div className="mt-2 text-md font-bold tracking-wide text-[#6E2A39]">
+
+                                                {product.price !== null && product.price !== undefined
+                                                    ? `${product.price} грн`
+                                                    : "Ціна не вказана"}
+                                            </div>
+
+                                            <div
+                                                className={`mx-auto mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-medium ${
+                                                    product.inStock
+                                                        ? "border-[#E5DED6] bg-[#F6F4F0] text-[#6E2A39]"
+                                                        : "border-[#E5DED6] bg-[#F1ECE5] text-[#8A766C]"
+                                                }`}
+                                            >
+                                                {product.inStock ? "В наявності" : "Немає в наявності"}
+                                            </div>
+
+                                            <div className="mt-2 text-xl leading-none text-[#6E2A39] transition group-hover:translate-x-1">
+                                                →
+                                            </div>
+                                        </button>
+
+                                        {isAdmin && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteProduct(product.id)}
+                                                aria-label="Видалити товар"
+                                                className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F4F0]/90 text-sm font-bold text-red-700 shadow-md transition hover:bg-[#F6F4F0]"
+                                                style={{cursor: "pointer"}}
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
                                 ))}
                             </div>
 
@@ -552,6 +803,16 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                         fixedCategory={category}
                         onClose={() => setProductDialogOpen(false)}
                         onSubmit={handleCreateProduct}
+                    />
+                )}
+
+                {isAdmin && (
+                    <CategoryDialog
+                        open={categoryDialogOpen}
+                        selected={editingChildCategory}
+                        parentName={category?.name}
+                        onClose={() => setCategoryDialogOpen(false)}
+                        onSubmit={handleChildDialogSubmit}
                     />
                 )}
             </section>

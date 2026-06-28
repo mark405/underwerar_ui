@@ -8,6 +8,7 @@ import {ProductDTO} from "@/app/types/product";
 import {ProductService} from "@/app/api/product";
 import {NovaPostService} from "@/app/api/novapost";
 import {SettlementAreaDTO, SettlementDTO, WareHouseDTO} from "@/app/types/novapost";
+import {OrderService} from "@/app/api/order";
 
 export default function OrderPage() {
     const router = useRouter();
@@ -129,7 +130,7 @@ export default function OrderPage() {
             setWarehouses(page.content);
         });
     }, [selectedSettlement, warehouseSearch]);
-
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const inputClass =
         "w-full rounded-2xl border border-[#E5DED6] bg-[#F6F4F0] px-4 py-3 text-sm text-[#6E2A39] outline-none transition placeholder:text-[#8A766C] focus:border-[#6E2A39] focus:ring-2 focus:ring-[#6E2A39]/15";
 
@@ -139,11 +140,72 @@ export default function OrderPage() {
             [field]: value,
         }));
     };
+    const isValidPhone = (phone: string) => {
+        // basic UA/EU-friendly format
+        return /^\+?[0-9\s\-()]{10,20}$/.test(phone.trim());
+    };
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
 
-    const handleOrder = () => {
-        if (fromCart) {
-            clearCart();
+        if (!form.firstName.trim()) newErrors.firstName = "Вкажіть ім'я";
+        if (!form.secondName.trim()) newErrors.secondName = "Вкажіть прізвище";
+        if (!form.thirdName.trim()) newErrors.thirdName = "Вкажіть по батькові";
+
+        if (!form.phone.trim()) {
+            newErrors.phone = "Вкажіть телефон";
+        } else if (!isValidPhone(form.phone)) {
+            newErrors.phone = "Невірний формат телефону";
         }
+
+        if (!form.shippingType) {
+            newErrors.shippingType = "Оберіть тип доставки";
+        }
+
+        if (form.shippingType === "nova_poshta") {
+            if (!selectedArea) newErrors.area = "Оберіть область";
+            if (!selectedSettlement) newErrors.settlement = "Оберіть місто";
+            if (!selectedWarehouse) newErrors.warehouse = "Оберіть відділення";
+        }
+
+        setErrors(newErrors);
+
+        return Object.keys(newErrors).length === 0;
+    };
+    const validateFormState = (
+        form: typeof form,
+        area: string,
+        settlement: SettlementDTO | null,
+        warehouse: WareHouseDTO | null
+    ) => {
+        return (
+            form.firstName.trim() &&
+            form.secondName.trim() &&
+            form.thirdName.trim() &&
+            isValidPhone(form.phone) &&
+            form.shippingType &&
+            (form.shippingType !== "nova_poshta" || (area && settlement && warehouse))
+        );
+    };
+    const handleOrder = async () => {
+        if (!validate()) return;
+
+        const deliveryAddress =
+            form.shippingType === "nova_poshta"
+                ? `${selectedSettlement?.Description ?? ""}; ${selectedWarehouse?.Description ?? ""}`
+                : "";
+
+        await OrderService.create({
+            username: `${form.secondName} ${form.firstName} ${form.thirdName}`.trim(),
+            telephone: form.phone,
+            deliveryType: form.shippingType,
+            deliveryAddress,
+            orderItems: orderItems.map(item => ({
+                productId: item.product.id,
+                quantity: item.quantity,
+            })),
+        });
+
+        if (fromCart) clearCart();
 
         setShowToast(true);
     };
@@ -204,28 +266,37 @@ export default function OrderPage() {
                             value={form.firstName}
                             onChange={(e) => handleChange("firstName", e.target.value)}
                         />
-
+                        {errors.firstName && (
+                            <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
+                        )}
                         <input
                             className={inputClass}
                             placeholder="Прізвище"
                             value={form.secondName}
                             onChange={(e) => handleChange("secondName", e.target.value)}
                         />
-
+                        {errors.secondName && (
+                            <p className="text-sm text-red-500 mt-1">{errors.secondName}</p>
+                        )}
                         <input
                             className={inputClass}
                             placeholder="По батькові"
                             value={form.thirdName}
                             onChange={(e) => handleChange("thirdName", e.target.value)}
                         />
-
+                        {errors.thirdName && (
+                            <p className="text-sm text-red-500 mt-1">{errors.thirdName}</p>
+                        )}
                         <input
                             className={inputClass}
-                            placeholder="Номер телефону"
+                            placeholder="+380..."
+                            inputMode="tel"
                             value={form.phone}
                             onChange={(e) => handleChange("phone", e.target.value)}
                         />
-
+                        {errors.phone && (
+                            <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
+                        )}
                         <select
                             className={`${inputClass} sm:col-span-2`}
                             value={form.shippingType}
@@ -233,7 +304,6 @@ export default function OrderPage() {
                         >
                             <option value="">Тип доставки</option>
                             <option value="nova_poshta">Нова Пошта</option>
-                            <option value="ukr_poshta">Укрпошта</option>
                             <option value="pickup">Самовивіз</option>
                         </select>
                         {form.shippingType === "nova_poshta" && (
@@ -383,7 +453,8 @@ export default function OrderPage() {
                         <button
                             type="button"
                             onClick={handleOrder}
-                            className="rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition hover:bg-[#5b2230]"
+                            // disabled={!validateFormState(form, selectedArea, selectedSettlement, selectedWarehouse)}
+                            className="rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#5b2230]"
                         >
                             Замовити
                         </button>

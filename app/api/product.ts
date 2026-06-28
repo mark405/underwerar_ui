@@ -104,4 +104,8 @@ export const ProductService = {
 
         return api.put(`/product/admin/update/${data.id}`, formData);
     },
+
+    remove: async (id: number) => {
+        return api.delete(`/product/admin/${id}`);
+    },
 };

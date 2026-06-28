@@ -8,6 +8,7 @@ export interface CategoryDTO {
 export interface CategoryCreateRequest {
     name: string;
     file?: File;
+    parentId?: number;
 }
 
 export interface CategoryUpdateRequest {

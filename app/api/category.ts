@@ -16,7 +16,7 @@ export const CategoryService = {
     },
     create: async (data: CategoryCreateRequest) => {
         const formData = new FormData();
-        formData.append("data", new Blob([JSON.stringify({ name: data.name })], {
+        formData.append("data", new Blob([JSON.stringify({ name: data.name, parentId: data.parentId })], {
             type: "application/json",
         }));
 
@@ -38,5 +38,17 @@ export const CategoryService = {
         }
 
         return api.put(`/category/admin/update/${data.id}`, formData);
+    },
+
+    deleteImage: async (id: number) => {
+        return api.delete(`/category/admin/${id}/image`);
+    },
+
+    remove: async (id: number) => {
+        return api.delete(`/category/admin/${id}`);
+    },
+
+    reorder: async (orderedIds: number[]) => {
+        return api.put("/category/admin/reorder", {orderedIds});
     },
 };

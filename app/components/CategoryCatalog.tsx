@@ -1,10 +1,11 @@
 "use client";
 
 import {CategoryService} from "@/app/api/category";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {CategoryDTO} from "@/app/types/category";
 import {useRouter} from "next/navigation";
 import {ShopLayout} from "@/app/components/ShopLayout";
+import {CategoryDialog} from "@/app/components/dialogs/CategoryDialog";
 
 interface CategoryCatalogProps {
     isAdmin?: boolean;
@@ -13,15 +14,111 @@ interface CategoryCatalogProps {
 export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
     const [categories, setCategories] = useState<CategoryDTO[]>([]);
     const router = useRouter();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadTargetId, setUploadTargetId] = useState<number | null>(null);
+
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [editingCategory, setEditingCategory] = useState<CategoryDTO | null>(null);
+
+    const loadCategories = () => CategoryService.findAll().then(setCategories);
 
     useEffect(() => {
-        CategoryService.findAll().then(setCategories);
+        loadCategories();
     }, []);
 
     const getImageUrl = (image: string) =>
         `${process.env.NEXT_PUBLIC_API_URL}/${image.replace(/\\/g, "/")}`;
 
     const categoryBasePath = isAdmin ? "/admin/category" : "/category";
+
+    const handleAddPhotoClick = (id: number) => {
+        setUploadTargetId(id);
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (file: File | undefined) => {
+        if (!file || uploadTargetId == null) {
+            return;
+        }
+
+        const target = categories.find((category) => category.id === uploadTargetId);
+
+        if (!target) {
+            return;
+        }
+
+        await CategoryService.update({id: uploadTargetId, name: target.name, file});
+        await loadCategories();
+    };
+
+    const handleDeletePhoto = async (id: number) => {
+        if (!window.confirm("Видалити фото категорії?")) {
+            return;
+        }
+
+        await CategoryService.deleteImage(id);
+        await loadCategories();
+    };
+
+    const openCreateDialog = () => {
+        setEditingCategory(null);
+        setDialogOpen(true);
+    };
+
+    const openEditDialog = (category: CategoryDTO) => {
+        setEditingCategory(category);
+        setDialogOpen(true);
+    };
+
+    const handleDialogSubmit = async (name: string) => {
+        if (editingCategory) {
+            await CategoryService.update({id: editingCategory.id, name});
+        } else {
+            await CategoryService.create({name});
+        }
+
+        setDialogOpen(false);
+        await loadCategories();
+    };
+
+    const handleDeleteCategory = async (id: number) => {
+        if (!window.confirm("Видалити цю категорію?")) {
+            return;
+        }
+
+        try {
+            await CategoryService.remove(id);
+            await loadCategories();
+        } catch (err) {
+            const status = (err as { response?: { status?: number } })?.response?.status;
+
+            alert(
+                status === 409
+                    ? "Неможливо видалити категорію: спочатку видаліть підкатегорії або товари в ній."
+                    : "Не вдалося видалити категорію."
+            );
+        }
+    };
+
+    const handleMoveCategory = async (id: number, direction: "up" | "down") => {
+        const index = categories.findIndex((category) => category.id === id);
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+        if (index === -1 || targetIndex < 0 || targetIndex >= categories.length) {
+            return;
+        }
+
+        const reordered = [...categories];
+        [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
+
+        setCategories(reordered);
+
+        try {
+            await CategoryService.reorder(reordered.map((category) => category.id));
+        } catch {
+            await loadCategories();
+        }
+    };
 
     return (
         <ShopLayout>
@@ -36,11 +133,20 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
                                 Адмін-режим: можна створювати та редагувати категорії.
                             </p>
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={openCreateDialog}
+                            className="rounded-full bg-[#6E2A39] px-5 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-[#F6F4F0] shadow-sm transition hover:bg-[#5b2230]"
+                            style={{cursor: "pointer"}}
+                        >
+                            + Створити категорію
+                        </button>
                     </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-x-5 gap-y-9 md:grid-cols-3">
-                    {categories.map((category) => (
+                    {categories.map((category, index) => (
                         <div key={category.id} className="group relative text-center">
                             <button
                                 type="button"
@@ -68,9 +174,106 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
                                     →
                                 </div>
                             </button>
+
+                            {isAdmin && (
+                                <div className="absolute right-2 top-2 z-10 flex gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleAddPhotoClick(category.id)}
+                                        aria-label="Додати фото"
+                                        className="flex h-8 w-8 items-center justify-center rounded-full bg-[#6E2A39] text-sm font-bold text-[#F6F4F0] shadow-md transition hover:bg-[#5b2230]"
+                                        style={{cursor: "pointer"}}
+                                    >
+                                        +
+                                    </button>
+
+                                    {category.image && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeletePhoto(category.id)}
+                                            aria-label="Видалити фото"
+                                            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F6F4F0]/90 text-sm font-bold text-[#6E2A39] shadow-md transition hover:bg-[#F6F4F0]"
+                                            style={{cursor: "pointer"}}
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+
+                            {isAdmin && (
+                                <div className="mt-2 flex items-center justify-center gap-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleMoveCategory(category.id, "up")}
+                                        disabled={index === 0}
+                                        aria-label="Перемістити вгору"
+                                        className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                        style={{cursor: "pointer"}}
+                                    >
+                                        ↑
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleMoveCategory(category.id, "down")}
+                                        disabled={index === categories.length - 1}
+                                        aria-label="Перемістити вниз"
+                                        className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                        style={{cursor: "pointer"}}
+                                    >
+                                        ↓
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => openEditDialog(category)}
+                                        aria-label="Редагувати категорію"
+                                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                                        style={{cursor: "pointer"}}
+                                    >
+                                        Редагувати
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteCategory(category.id)}
+                                        aria-label="Видалити категорію"
+                                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-red-700 transition hover:bg-red-50"
+                                        style={{cursor: "pointer"}}
+                                    >
+                                        Видалити
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
+
+                {isAdmin && (
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        style={{display: "none"}}
+                        onChange={(e) => {
+                            const file = e.target.files?.[0];
+
+                            handleFileChange(file);
+
+                            e.target.value = "";
+                        }}
+                    />
+                )}
+
+                {isAdmin && (
+                    <CategoryDialog
+                        open={dialogOpen}
+                        selected={editingCategory}
+                        onClose={() => setDialogOpen(false)}
+                        onSubmit={handleDialogSubmit}
+                    />
+                )}
             </section>
         </ShopLayout>
     );
