@@ -35,7 +35,7 @@ export default function AdminOrdersPage() {
     };
     return (
         <AdminAuthGuard>
-            <div className="min-h-screen bg-[#F6F4F0] p-6 text-[#6E2A39] flex justify-center">
+            <div className="min-h-screen bg-[#F6F4F0] p-4 text-[#6E2A39] flex justify-center sm:p-6">
                 <div className="w-full max-w-4xl flex flex-col">
 
                     <button
@@ -46,8 +46,8 @@ export default function AdminOrdersPage() {
                     </button>
 
                     {/* HEADER */}
-                    <div className="mb-6 flex items-center justify-between">
-                        <h1 className="text-3xl font-serif font-bold">
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                        <h1 className="text-2xl font-serif font-bold sm:text-3xl">
                             Замовлення
                         </h1>
 
@@ -92,12 +92,13 @@ export default function AdminOrdersPage() {
         hover:scale-[1.01]
     "
                             >
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
                                     <div className="font-semibold">
                                         #{o.id} — {o.username}
                                     </div>
 
                                     <span className={`
+                                    shrink-0
                                     text-xs uppercase tracking-wider
                                     px-3 py-1 rounded-full
                                     border

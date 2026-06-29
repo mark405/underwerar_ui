@@ -17,6 +17,7 @@ import {
 import {CategoryService} from "@/app/api/category";
 import {CategoryDTO} from "@/app/types/category";
 import { ShopLayout } from "@/app/components/ShopLayout";
+import {useDialog} from "@/app/components/DialogContext";
 import {ProductDialog} from "@/app/components/dialogs/ProductDialog";
 import {CategoryDialog} from "@/app/components/dialogs/CategoryDialog";
 
@@ -55,6 +56,7 @@ interface ProductsPageProps {
 export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
     const params = useParams();
     const router = useRouter();
+    const {confirm, alert} = useDialog();
 
     const categoryId =
         typeof params.categoryId === "string"
@@ -120,7 +122,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
     };
 
     const handleDeleteChildPhoto = async (id: number) => {
-        if (!window.confirm("Видалити фото категорії?")) {
+        if (!(await confirm("Видалити фото категорії?"))) {
             return;
         }
 
@@ -150,7 +152,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
     };
 
     const handleDeleteChildCategory = async (id: number) => {
-        if (!window.confirm("Видалити цю категорію?")) {
+        if (!(await confirm("Видалити цю категорію?"))) {
             return;
         }
 
@@ -160,7 +162,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
         } catch (err) {
             const status = (err as { response?: { status?: number } })?.response?.status;
 
-            alert(
+            await alert(
                 status === 409
                     ? "Неможливо видалити категорію: спочатку видаліть підкатегорії або товари в ній."
                     : "Не вдалося видалити категорію."
@@ -291,7 +293,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
     };
 
     const handleDeleteProduct = async (id: number) => {
-        if (!window.confirm("Видалити цей товар?")) {
+        if (!(await confirm("Видалити цей товар?"))) {
             return;
         }
 
@@ -299,7 +301,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
             await ProductService.remove(id);
             setProductsReloadKey((prev) => prev + 1);
         } catch {
-            alert("Не вдалося видалити товар.");
+            await alert("Не вдалося видалити товар.");
         }
     };
 

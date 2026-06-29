@@ -5,6 +5,7 @@ import {useParams, useRouter} from "next/navigation";
 import { OrderService } from "@/app/api/order";
 import { OrderDTO } from "@/app/types/order";
 import { AdminAuthGuard } from "@/app/components/AdminAuthGuard";
+import { useDialog } from "@/app/components/DialogContext";
 
 const statusLabels: Record<string, string> = {
     PENDING: "Створено",
@@ -25,6 +26,7 @@ export default function OrderDetailsPage() {
     const { orderId } = useParams();
     const [order, setOrder] = useState<OrderDTO | null>(null);
     const router = useRouter();
+    const { alert } = useDialog();
 
     const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -67,7 +69,7 @@ export default function OrderDetailsPage() {
             setOrder(updated);
             setIsEditing(false);
         } catch {
-            alert("Не вдалося зберегти зміни.");
+            await alert("Не вдалося зберегти зміни.");
         } finally {
             setSaving(false);
         }
@@ -83,7 +85,7 @@ export default function OrderDetailsPage() {
 
     return (
         <AdminAuthGuard>
-            <div className="min-h-screen bg-[#F6F4F0] p-6 flex justify-center text-[#6E2A39]">
+            <div className="min-h-screen bg-[#F6F4F0] p-4 flex justify-center text-[#6E2A39] sm:p-6">
                 <div className="w-full max-w-3xl">
                     <button
                         onClick={() => router.push("/admin/orders")}
@@ -92,9 +94,9 @@ export default function OrderDetailsPage() {
                         ← Назад до замовлень
                     </button>
                     {/* HEADER */}
-                    <div className="mb-6 flex items-center justify-between gap-4">
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-serif font-bold">
+                            <h1 className="text-2xl font-serif font-bold sm:text-3xl">
                                 Замовлення #{order.id}
                             </h1>
 
@@ -122,7 +124,7 @@ export default function OrderDetailsPage() {
 
                     {/* INFO */}
                     {isEditing ? (
-                        <div className="rounded-2xl border border-[#E5DED6] bg-[#F1ECE5] p-6 space-y-4">
+                        <div className="rounded-2xl border border-[#E5DED6] bg-[#F1ECE5] p-4 space-y-4 sm:p-6">
                             <div>
                                 <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A766C]">
                                     Користувач
@@ -182,12 +184,12 @@ export default function OrderDetailsPage() {
                                 </select>
                             </div>
 
-                            <div className="flex justify-end gap-3 border-t border-[#E5DED6] pt-4">
+                            <div className="flex flex-col-reverse gap-3 border-t border-[#E5DED6] pt-4 sm:flex-row sm:justify-end">
                                 <button
                                     type="button"
                                     onClick={() => setIsEditing(false)}
                                     disabled={saving}
-                                    className="rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2.5 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="w-full rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2.5 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                                     style={{cursor: "pointer"}}
                                 >
                                     Скасувати
@@ -197,7 +199,7 @@ export default function OrderDetailsPage() {
                                     type="button"
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition hover:bg-[#5b2230] disabled:cursor-not-allowed disabled:opacity-60"
+                                    className="w-full rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition hover:bg-[#5b2230] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                                     style={{cursor: "pointer"}}
                                 >
                                     {saving ? "Збереження..." : "Зберегти"}
@@ -205,7 +207,7 @@ export default function OrderDetailsPage() {
                             </div>
                         </div>
                     ) : (
-                        <div className="rounded-2xl border border-[#E5DED6] bg-[#F1ECE5] p-6 space-y-2">
+                        <div className="rounded-2xl border border-[#E5DED6] bg-[#F1ECE5] p-4 space-y-2 sm:p-6">
                             <p><b>Користувач:</b> {order.username}</p>
                             <p><b>Телефон:</b> {order.telephone}</p>
                             <p><b>Доставка:</b> {order.deliveryType}</p>
@@ -218,9 +220,9 @@ export default function OrderDetailsPage() {
                         {order.orderItems.map((item) => (
                             <div
                                 key={item.id}
-                                className="flex items-center justify-between p-4 rounded-xl border border-[#E5DED6] bg-[#F1ECE5]"
+                                className="flex items-center justify-between gap-3 p-4 rounded-xl border border-[#E5DED6] bg-[#F1ECE5]"
                             >
-                                <div className="flex flex-col">
+                                <div className="flex min-w-0 flex-col">
                                     <p className="font-semibold">
                                         {item.product.name}
                                     </p>
@@ -230,7 +232,7 @@ export default function OrderDetailsPage() {
                                     </p>
                                 </div>
 
-                                <div className="font-semibold text-[#6E2A39] text-lg">
+                                <div className="shrink-0 font-semibold text-[#6E2A39] text-lg">
                                     {item.price ? `${item.price} ₴` : "Ціна не вказана"}
                                 </div>
                             </div>

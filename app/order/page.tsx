@@ -200,8 +200,8 @@ export default function OrderPage() {
         <ShopLayout>
             {showToast && (
                 <div
-                    className="fixed right-5 top-5 z-[100] max-w-sm rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-5 text-[#6E2A39] shadow-2xl">
-                    <div className="font-serif text-2xl font-bold">
+                    className="fixed left-3 right-3 top-3 z-[100] rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-4 text-[#6E2A39] shadow-2xl sm:left-auto sm:right-5 sm:top-5 sm:max-w-sm sm:p-5">
+                    <div className="font-serif text-xl font-bold sm:text-2xl">
                         Замовлення прийнято
                     </div>
                     <p className="mt-2 text-sm text-[#8A766C]">

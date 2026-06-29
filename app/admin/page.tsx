@@ -56,9 +56,9 @@ export default function AdminLoginPage() {
 
     return (
         <main className="flex min-h-screen items-center justify-center bg-[#F6F4F0] px-5 text-[#6E2A39]">
-            <section className="w-full max-w-md rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-8 shadow-xl">
+            <section className="w-full max-w-md rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-6 shadow-xl sm:p-8">
                 <div className="mb-8 text-center">
-                    <div className="font-serif text-5xl tracking-[0.35em] text-[#6E2A39]">
+                    <div className="font-serif text-4xl tracking-[0.25em] text-[#6E2A39] sm:text-5xl sm:tracking-[0.35em]">
                         ZUNA
                     </div>
                     <div className="-mt-1 text-xs tracking-[0.45em] text-[#8A766C]">

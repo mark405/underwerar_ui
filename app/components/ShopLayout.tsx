@@ -3,6 +3,7 @@
 import {ReactNode, useEffect, useRef, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 import {useCart} from "@/app/components/CartContext";
+import {useDialog} from "@/app/components/DialogContext";
 import {BannerService} from "@/app/api/banner";
 import {BannerDTO} from "@/app/types/banner";
 
@@ -16,6 +17,7 @@ const getImageUrl = (image: string) =>
 export function ShopLayout({children}: ShopLayoutProps) {
     const router = useRouter();
     const {totalItems} = useCart();
+    const {confirm} = useDialog();
     const pathname = usePathname();
     const isAdmin = pathname.startsWith("/admin");
 
@@ -48,7 +50,7 @@ export function ShopLayout({children}: ShopLayoutProps) {
     const handleDeleteBanner = async () => {
         const banner = banners[activeIndex];
 
-        if (!banner || !window.confirm("Видалити це фото з банера?")) {
+        if (!banner || !(await confirm("Видалити це фото з банера?"))) {
             return;
         }
 

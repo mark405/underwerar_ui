@@ -5,6 +5,7 @@ import {useEffect, useRef, useState} from "react";
 import {CategoryDTO} from "@/app/types/category";
 import {useRouter} from "next/navigation";
 import {ShopLayout} from "@/app/components/ShopLayout";
+import {useDialog} from "@/app/components/DialogContext";
 import {CategoryDialog} from "@/app/components/dialogs/CategoryDialog";
 
 interface CategoryCatalogProps {
@@ -14,6 +15,7 @@ interface CategoryCatalogProps {
 export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
     const [categories, setCategories] = useState<CategoryDTO[]>([]);
     const router = useRouter();
+    const {confirm, alert} = useDialog();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploadTargetId, setUploadTargetId] = useState<number | null>(null);
 
@@ -52,7 +54,7 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
     };
 
     const handleDeletePhoto = async (id: number) => {
-        if (!window.confirm("Видалити фото категорії?")) {
+        if (!(await confirm("Видалити фото категорії?"))) {
             return;
         }
 
@@ -82,7 +84,7 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
     };
 
     const handleDeleteCategory = async (id: number) => {
-        if (!window.confirm("Видалити цю категорію?")) {
+        if (!(await confirm("Видалити цю категорію?"))) {
             return;
         }
 
@@ -92,7 +94,7 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
         } catch (err) {
             const status = (err as { response?: { status?: number } })?.response?.status;
 
-            alert(
+            await alert(
                 status === 409
                     ? "Неможливо видалити категорію: спочатку видаліть підкатегорії або товари в ній."
                     : "Не вдалося видалити категорію."
