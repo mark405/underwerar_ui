@@ -141,8 +141,9 @@ export default function OrderPage() {
         }));
     };
     const isValidPhone = (phone: string) => {
-        // basic UA/EU-friendly format
-        return /^\+?[0-9\s\-()]{10,20}$/.test(phone.trim());
+        const normalized = phone.trim().replace(/[\s\-()]/g, "");
+
+        return /^(?:\+380|380|0)\d{9}$/.test(normalized);
     };
     const validate = () => {
         const newErrors: Record<string, string> = {};
@@ -170,21 +171,6 @@ export default function OrderPage() {
         setErrors(newErrors);
 
         return Object.keys(newErrors).length === 0;
-    };
-    const validateFormState = (
-        form: typeof form,
-        area: string,
-        settlement: SettlementDTO | null,
-        warehouse: WareHouseDTO | null
-    ) => {
-        return (
-            form.firstName.trim() &&
-            form.secondName.trim() &&
-            form.thirdName.trim() &&
-            isValidPhone(form.phone) &&
-            form.shippingType &&
-            (form.shippingType !== "nova_poshta" || (area && settlement && warehouse))
-        );
     };
     const handleOrder = async () => {
         if (!validate()) return;
@@ -260,76 +246,99 @@ export default function OrderPage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <input
-                            className={inputClass}
-                            placeholder="Імʼя"
-                            value={form.firstName}
-                            onChange={(e) => handleChange("firstName", e.target.value)}
-                        />
-                        {errors.firstName && (
-                            <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
-                        )}
-                        <input
-                            className={inputClass}
-                            placeholder="Прізвище"
-                            value={form.secondName}
-                            onChange={(e) => handleChange("secondName", e.target.value)}
-                        />
-                        {errors.secondName && (
-                            <p className="text-sm text-red-500 mt-1">{errors.secondName}</p>
-                        )}
-                        <input
-                            className={inputClass}
-                            placeholder="По батькові"
-                            value={form.thirdName}
-                            onChange={(e) => handleChange("thirdName", e.target.value)}
-                        />
-                        {errors.thirdName && (
-                            <p className="text-sm text-red-500 mt-1">{errors.thirdName}</p>
-                        )}
-                        <input
-                            className={inputClass}
-                            placeholder="+380..."
-                            inputMode="tel"
-                            value={form.phone}
-                            onChange={(e) => handleChange("phone", e.target.value)}
-                        />
-                        {errors.phone && (
-                            <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
-                        )}
-                        <select
-                            className={`${inputClass} sm:col-span-2`}
-                            value={form.shippingType}
-                            onChange={(e) => handleChange("shippingType", e.target.value)}
-                        >
-                            <option value="">Тип доставки</option>
-                            <option value="nova_poshta">Нова Пошта</option>
-                            <option value="pickup">Самовивіз</option>
-                        </select>
+                        <div>
+                            <input
+                                className={inputClass}
+                                placeholder="Імʼя"
+                                value={form.firstName}
+                                onChange={(e) => handleChange("firstName", e.target.value)}
+                            />
+                            {errors.firstName && (
+                                <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <input
+                                className={inputClass}
+                                placeholder="Прізвище"
+                                value={form.secondName}
+                                onChange={(e) => handleChange("secondName", e.target.value)}
+                            />
+                            {errors.secondName && (
+                                <p className="text-sm text-red-500 mt-1">{errors.secondName}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <input
+                                className={inputClass}
+                                placeholder="По батькові"
+                                value={form.thirdName}
+                                onChange={(e) => handleChange("thirdName", e.target.value)}
+                            />
+                            {errors.thirdName && (
+                                <p className="text-sm text-red-500 mt-1">{errors.thirdName}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <input
+                                className={inputClass}
+                                placeholder="+380..."
+                                inputMode="tel"
+                                value={form.phone}
+                                onChange={(e) => handleChange("phone", e.target.value)}
+                            />
+                            {errors.phone && (
+                                <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
+                            )}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <select
+                                className={inputClass}
+                                value={form.shippingType}
+                                onChange={(e) => handleChange("shippingType", e.target.value)}
+                            >
+                                <option value="">Тип доставки</option>
+                                <option value="nova_poshta">Нова Пошта</option>
+                                <option value="pickup">Самовивіз</option>
+                            </select>
+                            {errors.shippingType && (
+                                <p className="text-sm text-red-500 mt-1">{errors.shippingType}</p>
+                            )}
+                        </div>
+
                         {form.shippingType === "nova_poshta" && (
                             <>
-                                <select
-                                    className={`${inputClass} sm:col-span-2`}
-                                    value={selectedArea}
-                                    onChange={(e) => {
-                                        setSelectedArea(e.target.value);
-                                        setSelectedSettlement(null);
-                                        setSelectedWarehouse(null);
-                                        setSettlementSearch("");
-                                        setWarehouses([]);
-                                    }}
-                                >
-                                    <option value="">Оберіть область</option>
+                                <div className="sm:col-span-2">
+                                    <select
+                                        className={inputClass}
+                                        value={selectedArea}
+                                        onChange={(e) => {
+                                            setSelectedArea(e.target.value);
+                                            setSelectedSettlement(null);
+                                            setSelectedWarehouse(null);
+                                            setSettlementSearch("");
+                                            setWarehouses([]);
+                                        }}
+                                    >
+                                        <option value="">Оберіть область</option>
 
-                                    {areas.map((area) => (
-                                        <option
-                                            key={area.Ref}
-                                            value={area.Ref}
-                                        >
-                                            {area.Description}
-                                        </option>
-                                    ))}
-                                </select>
+                                        {areas.map((area) => (
+                                            <option
+                                                key={area.Ref}
+                                                value={area.Ref}
+                                            >
+                                                {area.Description}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.area && (
+                                        <p className="text-sm text-red-500 mt-1">{errors.area}</p>
+                                    )}
+                                </div>
                                 <div className="relative sm:col-span-2">
                                     <input
                                         className={inputClass}
@@ -388,6 +397,9 @@ export default function OrderPage() {
                                             ))}
                                         </div>
                                     )}
+                                    {errors.settlement && (
+                                        <p className="text-sm text-red-500 mt-1">{errors.settlement}</p>
+                                    )}
                                 </div>
                                 <div className="relative sm:col-span-2">
                                     <input
@@ -435,6 +447,9 @@ export default function OrderPage() {
                                             ))}
                                         </div>
                                     )}
+                                    {errors.warehouse && (
+                                        <p className="text-sm text-red-500 mt-1">{errors.warehouse}</p>
+                                    )}
                                 </div>
                             </>
 
@@ -453,7 +468,6 @@ export default function OrderPage() {
                         <button
                             type="button"
                             onClick={handleOrder}
-                            // disabled={!validateFormState(form, selectedArea, selectedSettlement, selectedWarehouse)}
                             className="rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#5b2230]"
                         >
                             Замовити

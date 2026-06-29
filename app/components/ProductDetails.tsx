@@ -130,7 +130,6 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
 
     const handleUpdateProduct = async (payload: Parameters<typeof ProductService.create>[0] & {
         imagesToDelete?: string[];
-        inStock?: boolean;
     }) => {
         if (!product) {
             return;

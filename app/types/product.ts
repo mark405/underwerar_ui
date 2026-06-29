@@ -14,6 +14,7 @@ export interface ProductDTO {
     features?: string | null;
 
     price?: number | null;
+    quantity?: number | null;
     inStock?: boolean | null;
 
     size?: string | null;
@@ -48,6 +49,7 @@ export interface ProductCreateRequest {
     features?: string;
 
     price?: number;
+    quantity: number;
 
     size?: string;
     briefStyle?: string;
@@ -70,7 +72,7 @@ export interface ProductUpdateRequest {
     features?: string;
 
     price?: number;
-    inStock?: boolean;
+    quantity: number;
 
     size?: string;
     briefStyle?: string;

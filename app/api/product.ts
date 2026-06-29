@@ -36,6 +36,8 @@ export const ProductService = {
             features: data.features,
 
             price: data.price,
+            quantity: data.quantity,
+            inStock: data.quantity > 0,
 
             bustModel: data.bustModel,
             size: data.size,
@@ -77,7 +79,8 @@ export const ProductService = {
             features: data.features,
 
             price: data.price,
-            inStock: data.inStock,
+            quantity: data.quantity,
+            inStock: data.quantity > 0,
 
             bustModel: data.bustModel,
             size: data.size,

@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ClaudeCodeEditorTabs">
-    <option name="activeSessionId" value="1836a5b5-f973-48a9-8aae-2c0f29f77860" />
+    <option name="activeSessionId" value="980e1698-db80-4fae-a5fd-2f73f07877f1" />
     <option name="openSessionIds">
       <list>
         <option value="1836a5b5-f973-48a9-8aae-2c0f29f77860" />
+        <option value="980e1698-db80-4fae-a5fd-2f73f07877f1" />
       </list>
     </option>
     <option name="sessionPaths">
       <map>
         <entry key="1836a5b5-f973-48a9-8aae-2c0f29f77860" value="/sessions/7ee6ecf4-fb22-4d4d-8083-7d7f8b06b490" />
+        <entry key="980e1698-db80-4fae-a5fd-2f73f07877f1" value="/sessions/67418d09-71b9-4e17-a0b6-634c99de8ea8" />
       </map>
     </option>
     <option name="sessionTitles">
       <map>
         <entry key="1836a5b5-f973-48a9-8aae-2c0f29f77860" value="can you access curent project files?" />
+        <entry key="980e1698-db80-4fae-a5fd-2f73f07877f1" value="add quantity to product mandatory field. admin can" />
       </map>
     </option>
   </component>
