@@ -200,7 +200,7 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
                         <div className="bg-[#F1ECE5] p-4">
                             {selectedImage ? (
                                 <div className="space-y-4">
-                                    <div className="h-[520px] overflow-hidden rounded-[2rem] bg-[#E5DED6]">
+                                    <div className="h-[320px] overflow-hidden rounded-[2rem] bg-[#E5DED6] sm:h-[420px] lg:h-[520px]">
                                         <img
                                             src={getImageUrl(selectedImage)}
                                             alt={product.name}
@@ -215,7 +215,7 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
                                                     key={`${image}-${index}`}
                                                     type="button"
                                                     onClick={() => setSelectedImage(image)}
-                                                    className={`h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl border-2 bg-[#F6F4F0] transition ${
+                                                    className={`h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border-2 bg-[#F6F4F0] transition sm:h-24 sm:w-24 ${
                                                         selectedImage === image
                                                             ? "border-[#6E2A39]"
                                                             : "border-transparent hover:border-[#E5DED6]"
@@ -233,13 +233,13 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
                                     )}
                                 </div>
                             ) : (
-                                <div className="flex h-[520px] items-center justify-center rounded-[2rem] bg-[#E5DED6] text-[#8A766C]">
+                                <div className="flex h-[320px] items-center justify-center rounded-[2rem] bg-[#E5DED6] text-[#8A766C] sm:h-[420px] lg:h-[520px]">
                                     Немає фото
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex flex-col justify-between p-6 sm:p-8 lg:p-10">
+                        <div className="flex flex-col justify-between p-5 sm:p-8 lg:p-10">
                             <div className="space-y-6">
                                 <div>
                                     <div className="mb-3 inline-flex rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-4 py-1 text-sm font-medium text-[#8A766C]">
@@ -248,7 +248,7 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
                                             : category?.name ?? product.category?.name ?? "Без категорії"}
                                     </div>
 
-                                    <h1 className="font-serif text-4xl font-bold text-[#6E2A39] sm:text-5xl">
+                                    <h1 className="font-serif text-3xl font-bold text-[#6E2A39] sm:text-4xl lg:text-5xl">
                                         {product.name}
                                     </h1>
 
@@ -265,7 +265,7 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
                                 </div>
 
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <div className="text-4xl font-extrabold tracking-wide text-[#6E2A39]">
+                                    <div className="text-3xl font-extrabold tracking-wide text-[#6E2A39] sm:text-4xl">
                                         {product.price !== null && product.price !== undefined
                                             ? `${product.price} грн`
                                             : "Ціна не вказана"}

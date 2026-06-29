@@ -412,13 +412,13 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                                     )}
 
                                     {isAdmin && (
-                                        <div className="mt-2 flex items-center justify-center gap-1">
+                                        <div className="mt-2 flex flex-wrap items-center justify-center gap-1">
                                             <button
                                                 type="button"
                                                 onClick={() => handleMoveChildCategory(childCategory.id, "up")}
                                                 disabled={index === 0}
                                                 aria-label="Перемістити вгору"
-                                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8"
                                                 style={{cursor: "pointer"}}
                                             >
                                                 ↑
@@ -429,7 +429,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                                                 onClick={() => handleMoveChildCategory(childCategory.id, "down")}
                                                 disabled={index === childCategories.length - 1}
                                                 aria-label="Перемістити вниз"
-                                                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8"
                                                 style={{cursor: "pointer"}}
                                             >
                                                 ↓
@@ -439,7 +439,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                                                 type="button"
                                                 onClick={() => openEditChildDialog(childCategory)}
                                                 aria-label="Редагувати категорію"
-                                                className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                                                className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-[#6E2A39] transition hover:bg-[#E5DED6] sm:px-3 sm:py-1.5 sm:text-xs"
                                                 style={{cursor: "pointer"}}
                                             >
                                                 Редагувати
@@ -449,7 +449,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                                                 type="button"
                                                 onClick={() => handleDeleteChildCategory(childCategory.id)}
                                                 aria-label="Видалити категорію"
-                                                className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-red-700 transition hover:bg-red-50"
+                                                className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-red-700 transition hover:bg-red-50 sm:px-3 sm:py-1.5 sm:text-xs"
                                                 style={{cursor: "pointer"}}
                                             >
                                                 Видалити
@@ -512,7 +512,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
 
                 <section className="flex flex-wrap items-center justify-between gap-4">
                     <div className="space-y-2">
-                        <h1 className="font-serif text-4xl font-bold text-[#6E2A39]">
+                        <h1 className="font-serif text-3xl font-bold text-[#6E2A39] sm:text-4xl">
                             {category?.name ?? "Товари"}
                         </h1>
 
@@ -546,10 +546,10 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                     )}
                 </section>
 
-                <section className="rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5]/80 p-5 shadow-sm">
-                    <div className="mb-4 flex items-center justify-between gap-3">
+                <section className="rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5]/80 p-4 shadow-sm sm:p-5">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <h2 className="font-serif text-2xl font-semibold text-[#6E2A39]">
+                            <h2 className="font-serif text-xl font-semibold text-[#6E2A39] sm:text-2xl">
                                 Фільтри
                             </h2>
                             <p className="mt-1 text-sm text-[#8A766C]">
@@ -560,7 +560,7 @@ export function ProductsCatalog({isAdmin = false}: ProductsPageProps) {
                         <button
                             type="button"
                             onClick={handleResetFilters}
-                            className="rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                            className="shrink-0 rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6]"
                             style={{ cursor: "pointer" }}
                         >
                             Скинути

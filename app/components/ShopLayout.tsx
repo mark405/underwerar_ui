@@ -60,17 +60,17 @@ export function ShopLayout({children}: ShopLayoutProps) {
     return (
         <main className="min-h-screen bg-[#F6F4F0] pb-24 text-[#6E2A39]">
             <header className="sticky top-0 z-20 border-b border-[#E5DED6] bg-[#F6F4F0]/95 backdrop-blur">
-                <div className="relative flex h-20 w-full items-center justify-center px-5">
+                <div className="relative flex h-16 w-full items-center justify-center px-3 sm:h-20 sm:px-5">
                     <button
                         type="button"
                         onClick={() => router.push("/")}
-                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center"
+                        className="text-center"
                         style={{cursor: "pointer"}}
                     >
-                        <div className="font-serif text-5xl tracking-[0.35em] text-[#6E2A39]">
+                        <div className="font-serif text-2xl tracking-[0.2em] text-[#6E2A39] sm:text-4xl sm:tracking-[0.3em] lg:text-5xl lg:tracking-[0.35em]">
                             ZUNA
                         </div>
-                        <div className="-mt-1 text-xs tracking-[0.45em] text-[#8A766C]">
+                        <div className="-mt-1 text-[9px] tracking-[0.3em] text-[#8A766C] sm:text-xs sm:tracking-[0.45em]">
                             intimates
                         </div>
                     </button>
@@ -79,11 +79,11 @@ export function ShopLayout({children}: ShopLayoutProps) {
                             type="button"
                             onClick={() => router.push("/admin/orders")}
                             className="
-absolute right-5 top-1/2 -translate-y-1/2
+absolute right-3 top-1/2 -translate-y-1/2
 rounded-full
 bg-[#6E2A39]
-px-5 py-2
-text-xs uppercase tracking-wider text-[#F6F4F0]
+px-3 py-1.5 sm:px-5 sm:py-2
+text-[10px] sm:text-xs uppercase tracking-wider text-[#F6F4F0]
 border border-[#6E2A39]
 shadow-md
 transition-all
@@ -99,7 +99,7 @@ active:scale-95
                 </div>
             </header>
 
-            <section className="relative h-[520px] overflow-hidden bg-[#F1ECE5]">
+            <section className="relative h-[280px] overflow-hidden bg-[#F1ECE5] sm:h-[400px] lg:h-[520px]">
                 {banners.length > 0 ? (
                     banners.map((banner, index) => (
                         <img
@@ -163,11 +163,11 @@ active:scale-95
                 )}
 
                 {isAdmin && (
-                    <div className="absolute right-5 top-5 z-10 flex gap-2">
+                    <div className="absolute right-2 top-2 z-10 flex gap-2 sm:right-5 sm:top-5">
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="rounded-full bg-[#6E2A39] px-4 py-2 text-xs uppercase tracking-wider text-[#F6F4F0] shadow-md transition hover:bg-[#5b2230]"
+                            className="rounded-full bg-[#6E2A39] px-3 py-1.5 text-[10px] uppercase tracking-wider text-[#F6F4F0] shadow-md transition hover:bg-[#5b2230] sm:px-4 sm:py-2 sm:text-xs"
                             style={{cursor: "pointer"}}
                         >
                             + фото
@@ -177,7 +177,7 @@ active:scale-95
                             <button
                                 type="button"
                                 onClick={handleDeleteBanner}
-                                className="rounded-full bg-[#F6F4F0]/90 px-4 py-2 text-xs uppercase tracking-wider text-[#6E2A39] shadow-md transition hover:bg-[#F6F4F0]"
+                                className="rounded-full bg-[#F6F4F0]/90 px-3 py-1.5 text-[10px] uppercase tracking-wider text-[#6E2A39] shadow-md transition hover:bg-[#F6F4F0] sm:px-4 sm:py-2 sm:text-xs"
                                 style={{cursor: "pointer"}}
                             >
                                 Видалити
@@ -206,15 +206,15 @@ active:scale-95
             {children}
 
             <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-[#E5DED6] bg-[#F1ECE5]/95 backdrop-blur">
-                <div className="mx-auto grid h-20 max-w-4xl grid-cols-3 divide-x divide-[#E5DED6] px-4 text-[#6E2A39]">
+                <div className="mx-auto grid h-16 max-w-4xl grid-cols-3 divide-x divide-[#E5DED6] px-2 text-[#6E2A39] sm:h-20 sm:px-4">
                     <button
                         type="button"
-                        className="flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
+                        className="flex flex-col items-center justify-center gap-1 text-[10px] uppercase tracking-wider sm:text-xs"
                         style={{cursor: "pointer"}}
                     >
                         <svg
                             viewBox="0 0 24 24"
-                            className="h-7 w-7"
+                            className="h-6 w-6 sm:h-7 sm:w-7"
                             fill="none"
                             aria-hidden="true"
                         >
@@ -236,12 +236,12 @@ active:scale-95
                     <button
                         type="button"
                         onClick={() => router.push("/cart")}
-                        className="relative flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
+                        className="relative flex flex-col items-center justify-center gap-1 text-[10px] uppercase tracking-wider sm:text-xs"
                         style={{cursor: "pointer"}}
                     >
                         <svg
                             viewBox="0 0 24 24"
-                            className="h-7 w-7"
+                            className="h-6 w-6 sm:h-7 sm:w-7"
                             fill="none"
                             aria-hidden="true"
                         >
@@ -269,11 +269,11 @@ active:scale-95
                         href="https://www.instagram.com/zuna.intimates/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex flex-col items-center justify-center gap-1 text-xs uppercase tracking-wider"
+                        className="flex flex-col items-center justify-center gap-1 text-[10px] uppercase tracking-wider sm:text-xs"
                     >
                         <svg
                             viewBox="0 0 24 24"
-                            className="h-7 w-7"
+                            className="h-6 w-6 sm:h-7 sm:w-7"
                             fill="none"
                             aria-hidden="true"
                         >

@@ -21,7 +21,7 @@ export default function CartPage() {
             <section className="mx-auto max-w-6xl space-y-8 px-5 pb-32 pt-10">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h1 className="font-serif text-4xl font-bold text-[#6E2A39]">
+                        <h1 className="font-serif text-3xl font-bold text-[#6E2A39] sm:text-4xl">
                             Кошик
                         </h1>
                         <p className="mt-1 text-sm text-[#8A766C]">
@@ -50,9 +50,9 @@ export default function CartPage() {
                             {items.map((item) => (
                                 <div
                                     key={item.product.id}
-                                    className="grid grid-cols-[96px_1fr] gap-4 rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-4 sm:grid-cols-[140px_1fr_auto]"
+                                    className="flex gap-4 rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-4 sm:grid sm:grid-cols-[140px_1fr_auto]"
                                 >
-                                    <div className="h-24 overflow-hidden rounded-2xl bg-[#E5DED6] sm:h-32">
+                                    <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-[#E5DED6] sm:h-32 sm:w-auto">
                                         {item.product.image ? (
                                             <img
                                                 src={getImageUrl(item.product.image)}
@@ -66,25 +66,27 @@ export default function CartPage() {
                                         )}
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <h2 className="font-serif text-2xl font-bold text-[#6E2A39]">
-                                            {item.product.name}
-                                        </h2>
-                                        <div className="text-lg font-extrabold text-[#6E2A39]">
-                                            {item.product.price ?? "-"} грн
+                                    <div className="flex min-w-0 flex-1 flex-col justify-between gap-3 sm:contents">
+                                        <div className="space-y-2">
+                                            <h2 className="font-serif text-xl font-bold text-[#6E2A39] sm:text-2xl">
+                                                {item.product.name}
+                                            </h2>
+                                            <div className="text-lg font-extrabold text-[#6E2A39]">
+                                                {item.product.price ?? "-"} грн
+                                            </div>
+                                            <div className="text-sm text-[#8A766C]">
+                                                Кількість: {item.quantity}
+                                            </div>
                                         </div>
-                                        <div className="text-sm text-[#8A766C]">
-                                            Кількість: {item.quantity}
-                                        </div>
-                                    </div>
 
-                                    <button
-                                        type="button"
-                                        onClick={() => removeFromCart(item.product.id)}
-                                        className="self-start rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-4 py-2 text-sm text-[#6E2A39] transition hover:bg-[#E5DED6]"
-                                    >
-                                        Видалити
-                                    </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeFromCart(item.product.id)}
+                                            className="self-start rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-4 py-2 text-sm text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                                        >
+                                            Видалити
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

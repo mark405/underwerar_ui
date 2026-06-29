@@ -210,7 +210,7 @@ export default function OrderPage() {
                 </div>
             )}
             <section className="mx-auto max-w-3xl px-5 pb-32 pt-10">
-                <div className="mb-6 rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-5">
+                <div className="mb-6 rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-4 sm:p-5">
                     <div className="text-sm uppercase tracking-[0.15em] text-[#8A766C]">
                         Ваше замовлення
                     </div>
@@ -219,12 +219,12 @@ export default function OrderPage() {
                         {orderItems.map((item) => (
                             <div
                                 key={item.product.id}
-                                className="flex justify-between text-[#6E2A39]"
+                                className="flex justify-between gap-3 text-[#6E2A39]"
                             >
                                 <div>
                                     {item.product.name} × {item.quantity}
                                 </div>
-                                <div className="font-semibold">
+                                <div className="shrink-0 font-semibold">
                                     {(item.product.price ?? 0) * item.quantity} грн
                                 </div>
                             </div>
@@ -238,9 +238,9 @@ export default function OrderPage() {
                         </div>
                     </div>
                 </div>
-                <div className="rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-6 shadow-xl">
+                <div className="rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-4 shadow-xl sm:p-6">
                     <div className="mb-6">
-                        <h1 className="font-serif text-4xl font-bold text-[#6E2A39]">
+                        <h1 className="font-serif text-2xl font-bold text-[#6E2A39] sm:text-3xl lg:text-4xl">
                             Оформлення замовлення
                         </h1>
                     </div>
@@ -456,11 +456,11 @@ export default function OrderPage() {
                         )}
                     </div>
 
-                    <div className="mt-6 flex justify-end gap-3 border-t border-[#E5DED6] pt-5">
+                    <div className="mt-6 flex flex-col-reverse gap-3 border-t border-[#E5DED6] pt-5 sm:flex-row sm:justify-end">
                         <button
                             type="button"
                             onClick={() => router.push(returnTo)}
-                            className="rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2.5 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                            className="w-full rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2.5 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6] sm:w-auto"
                         >
                             Назад
                         </button>
@@ -468,7 +468,7 @@ export default function OrderPage() {
                         <button
                             type="button"
                             onClick={handleOrder}
-                            className="rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#5b2230]"
+                            className="w-full rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#5b2230] sm:w-auto"
                         >
                             Замовити
                         </button>

@@ -97,7 +97,7 @@ export function ProductDialog({
         "w-full rounded-2xl border border-[#E5DED6] bg-[#F6F4F0] px-4 py-3 text-sm text-[#6E2A39] outline-none transition placeholder:text-[#8A766C] focus:border-[#6E2A39] focus:ring-2 focus:ring-[#6E2A39]/15";
 
     const sectionClass =
-        "rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5]/80 p-5";
+        "rounded-[1.25rem] border border-[#E5DED6] bg-[#F1ECE5]/80 p-4 sm:rounded-[2rem] sm:p-5";
 
     const labelCardClass =
         "rounded-[2rem] border border-dashed border-[#E5DED6] bg-[#F6F4F0] p-4";
@@ -336,15 +336,15 @@ export function ProductDialog({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#6E2A39]/40 px-4 backdrop-blur-sm">
-            <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-[#E5DED6] bg-[#F6F4F0] p-6 text-[#6E2A39] shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#6E2A39]/40 px-2 backdrop-blur-sm sm:px-4">
+            <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[1.25rem] border border-[#E5DED6] bg-[#F6F4F0] p-4 text-[#6E2A39] shadow-2xl sm:rounded-[2rem] sm:p-6">
 
-                <div className="mb-6 flex items-center justify-between border-b border-[#E5DED6] pb-4">
+                <div className="mb-4 flex items-center justify-between gap-3 border-b border-[#E5DED6] pb-4 sm:mb-6">
                     <div>
-                        <h2 className="font-serif text-3xl font-bold text-[#6E2A39]">
+                        <h2 className="font-serif text-xl font-bold text-[#6E2A39] sm:text-3xl">
                             {selected ? "Редагувати товар" : "Створити товар"}
                         </h2>
-                        <p className="mt-1 text-sm text-[#8A766C]">
+                        <p className="mt-1 text-xs text-[#8A766C] sm:text-sm">
                             Заповніть інформацію про товар, фото та характеристики.
                         </p>
                     </div>
@@ -352,7 +352,7 @@ export function ProductDialog({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1 text-xl text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                        className="shrink-0 rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1 text-xl text-[#6E2A39] transition hover:bg-[#E5DED6]"
                     >
                         ✕
                     </button>
@@ -885,11 +885,11 @@ export function ProductDialog({
                     </div>
                     )}
 
-                    <div className="flex justify-end gap-3 border-t border-[#E5DED6] pt-5">
+                    <div className="flex flex-col-reverse gap-3 border-t border-[#E5DED6] pt-5 sm:flex-row sm:justify-end">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2.5 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                            className="w-full rounded-full border border-[#E5DED6] bg-[#F6F4F0] px-5 py-2.5 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6] sm:w-auto"
                         >
                             Скасувати
                         </button>
@@ -897,7 +897,7 @@ export function ProductDialog({
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            className="rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition hover:bg-[#5b2230]"
+                            className="w-full rounded-full bg-[#6E2A39] px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.12em] text-[#F6F4F0] transition hover:bg-[#5b2230] sm:w-auto"
                         >
                             {selected ? "Оновити" : "Створити"}
                         </button>

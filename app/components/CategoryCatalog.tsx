@@ -126,7 +126,7 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
                 {isAdmin && (
                     <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
                         <div>
-                            <h1 className="font-serif text-4xl font-bold text-[#6E2A39]">
+                            <h1 className="font-serif text-3xl font-bold text-[#6E2A39] sm:text-4xl">
                                 Категорії
                             </h1>
                             <p className="mt-1 text-sm text-[#8A766C]">
@@ -202,13 +202,13 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
                             )}
 
                             {isAdmin && (
-                                <div className="mt-2 flex items-center justify-center gap-1">
+                                <div className="mt-2 flex flex-wrap items-center justify-center gap-1">
                                     <button
                                         type="button"
                                         onClick={() => handleMoveCategory(category.id, "up")}
                                         disabled={index === 0}
                                         aria-label="Перемістити вгору"
-                                        className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8"
                                         style={{cursor: "pointer"}}
                                     >
                                         ↑
@@ -219,7 +219,7 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
                                         onClick={() => handleMoveCategory(category.id, "down")}
                                         disabled={index === categories.length - 1}
                                         aria-label="Перемістити вниз"
-                                        className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40"
+                                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-40 sm:h-8 sm:w-8"
                                         style={{cursor: "pointer"}}
                                     >
                                         ↓
@@ -229,7 +229,7 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
                                         type="button"
                                         onClick={() => openEditDialog(category)}
                                         aria-label="Редагувати категорію"
-                                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-[#6E2A39] transition hover:bg-[#E5DED6] sm:px-3 sm:py-1.5 sm:text-xs"
                                         style={{cursor: "pointer"}}
                                     >
                                         Редагувати
@@ -239,7 +239,7 @@ export function CategoryCatalog({isAdmin = false}: CategoryCatalogProps) {
                                         type="button"
                                         onClick={() => handleDeleteCategory(category.id)}
                                         aria-label="Видалити категорію"
-                                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-red-700 transition hover:bg-red-50"
+                                        className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-red-700 transition hover:bg-red-50 sm:px-3 sm:py-1.5 sm:text-xs"
                                         style={{cursor: "pointer"}}
                                     >
                                         Видалити
