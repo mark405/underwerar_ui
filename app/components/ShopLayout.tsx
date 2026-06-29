@@ -211,6 +211,7 @@ active:scale-95
                 <div className="mx-auto grid h-16 max-w-4xl grid-cols-3 divide-x divide-[#E5DED6] px-2 text-[#6E2A39] sm:h-20 sm:px-4">
                     <button
                         type="button"
+                        onClick={() => router.push("/info")}
                         className="flex flex-col items-center justify-center gap-1 text-[10px] uppercase tracking-wider sm:text-xs"
                         style={{cursor: "pointer"}}
                     >
@@ -221,18 +222,24 @@ active:scale-95
                             aria-hidden="true"
                         >
                             <path
-                                d="M10.5 18C14.6421 18 18 14.6421 18 10.5C18 6.35786 14.6421 3 10.5 3C6.35786 3 3 6.35786 3 10.5C3 14.6421 6.35786 18 10.5 18Z"
+                                d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
                                 stroke="currentColor"
                                 strokeWidth="1.5"
                             />
                             <path
-                                d="M16 16L21 21"
+                                d="M12 11V16"
                                 stroke="currentColor"
                                 strokeWidth="1.5"
                                 strokeLinecap="round"
                             />
+                            <path
+                                d="M12 7.5V7.51"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                            />
                         </svg>
-                        пошук
+                        інфо
                     </button>
 
                     <button
