@@ -32,6 +32,7 @@ export default function OrderDetailsPage() {
     const [saving, setSaving] = useState(false);
     const [username, setUsername] = useState("");
     const [telephone, setTelephone] = useState("");
+    const [email, setEmail] = useState("");
     const [deliveryAddress, setDeliveryAddress] = useState("");
     const [status, setStatus] = useState("");
 
@@ -46,6 +47,7 @@ export default function OrderDetailsPage() {
 
         setUsername(order.username);
         setTelephone(order.telephone);
+        setEmail(order.email);
         setDeliveryAddress(order.deliveryAddress);
         setStatus(order.status);
         setIsEditing(true);
@@ -61,6 +63,7 @@ export default function OrderDetailsPage() {
                 id: order.id,
                 username,
                 telephone,
+                email,
                 deliveryAddress,
                 status,
             });
@@ -149,6 +152,18 @@ export default function OrderDetailsPage() {
 
                             <div>
                                 <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A766C]">
+                                    Email
+                                </label>
+                                <input
+                                    className={inputClass}
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A766C]">
                                     Доставка
                                 </label>
                                 <p className="px-1 text-sm text-[#6E2A39]">
@@ -210,6 +225,7 @@ export default function OrderDetailsPage() {
                         <div className="rounded-2xl border border-[#E5DED6] bg-[#F1ECE5] p-4 space-y-2 sm:p-6">
                             <p><b>Користувач:</b> {order.username}</p>
                             <p><b>Телефон:</b> {order.telephone}</p>
+                            <p><b>Email:</b> {order.email}</p>
                             <p><b>Доставка:</b> {order.deliveryType}</p>
                             <p><b>Адреса:</b> {order.deliveryAddress}</p>
                         </div>

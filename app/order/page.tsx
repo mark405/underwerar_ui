@@ -41,6 +41,7 @@ export default function OrderPage() {
         secondName: "",
         thirdName: "",
         phone: "",
+        email: "",
         shippingType: "",
     });
     useEffect(() => {
@@ -145,6 +146,9 @@ export default function OrderPage() {
 
         return /^(?:\+380|380|0)\d{9}$/.test(normalized);
     };
+    const isValidEmail = (email: string) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    };
     const validate = () => {
         const newErrors: Record<string, string> = {};
 
@@ -156,6 +160,12 @@ export default function OrderPage() {
             newErrors.phone = "Вкажіть телефон";
         } else if (!isValidPhone(form.phone)) {
             newErrors.phone = "Невірний формат телефону";
+        }
+
+        if (!form.email.trim()) {
+            newErrors.email = "Вкажіть email";
+        } else if (!isValidEmail(form.email)) {
+            newErrors.email = "Невірний формат email";
         }
 
         if (!form.shippingType) {
@@ -183,6 +193,7 @@ export default function OrderPage() {
         await OrderService.create({
             username: `${form.secondName} ${form.firstName} ${form.thirdName}`.trim(),
             telephone: form.phone,
+            email: form.email.trim(),
             deliveryType: form.shippingType,
             deliveryAddress,
             orderItems: orderItems.map(item => ({
@@ -292,6 +303,20 @@ export default function OrderPage() {
                             />
                             {errors.phone && (
                                 <p className="text-sm text-red-500 mt-1">{errors.phone}</p>
+                            )}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <input
+                                className={inputClass}
+                                placeholder="Email"
+                                type="email"
+                                inputMode="email"
+                                value={form.email}
+                                onChange={(e) => handleChange("email", e.target.value)}
+                            />
+                            {errors.email && (
+                                <p className="text-sm text-red-500 mt-1">{errors.email}</p>
                             )}
                         </div>
 

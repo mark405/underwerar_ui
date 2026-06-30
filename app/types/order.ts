@@ -8,6 +8,7 @@ export interface OrderItemCreateRequest {
 export interface OrderCreateRequest {
     username: string;
     telephone: string;
+    email: string;
     deliveryType: string;
     deliveryAddress?: string;
     orderItems: OrderItemCreateRequest[];
@@ -17,6 +18,7 @@ export interface OrderDTO {
     id: number;
     username: string;
     telephone: string;
+    email: string;
     deliveryType: string;
     deliveryAddress: string;
     status: string;
@@ -34,6 +36,7 @@ export interface OrderUpdateRequest {
     id: number;
     username: string;
     telephone: string;
+    email: string;
     deliveryAddress: string;
     status: string;
 }
