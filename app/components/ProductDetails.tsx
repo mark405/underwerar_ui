@@ -281,7 +281,7 @@ export function ProductDetails({isAdmin = false}: ProductDetailsProps) {
                                         {product.inStock ? "В наявності" : "Немає в наявності"}
                                     </div>
                                 </div>
-                                {!isAdmin && (
+                                {(!isAdmin && product.inStock) && (
                                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                         <button
                                             type="button"
