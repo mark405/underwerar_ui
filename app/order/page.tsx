@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import {Suspense, useEffect, useMemo, useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {ShopLayout} from "@/app/components/ShopLayout";
 import {useCart} from "@/app/components/CartContext";
@@ -10,7 +10,7 @@ import {NovaPostService} from "@/app/api/novapost";
 import {SettlementAreaDTO, SettlementDTO, WareHouseDTO} from "@/app/types/novapost";
 import {OrderService} from "@/app/api/order";
 
-export default function OrderPage() {
+function OrderContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -501,5 +501,13 @@ export default function OrderPage() {
                 </div>
             </section>
         </ShopLayout>
+    );
+}
+
+export default function OrderPage() {
+    return (
+        <Suspense>
+            <OrderContent />
+        </Suspense>
     );
 }

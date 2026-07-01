@@ -1,13 +1,13 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {OrderService} from "@/app/api/order";
 import {OrderDTO} from "@/app/types/order";
 import {AdminAuthGuard} from "@/app/components/AdminAuthGuard";
 import {PageResponse} from "@/app/types/global";
 
-export default function AdminOrdersPage() {
+function AdminOrdersContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -146,5 +146,13 @@ export default function AdminOrdersPage() {
                 </div>
             </div>
         </AdminAuthGuard>
+    );
+}
+
+export default function AdminOrdersPage() {
+    return (
+        <Suspense>
+            <AdminOrdersContent />
+        </Suspense>
     );
 }
