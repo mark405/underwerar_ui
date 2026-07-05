@@ -19,6 +19,14 @@ export default function CartPage() {
     return (
         <ShopLayout>
             <section className="mx-auto max-w-6xl space-y-8 px-5 pb-32 pt-10">
+                <button
+                    type="button"
+                    onClick={() => router.push("/")}
+                    className="self-start px-4 py-2 cursor-pointer rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-sm hover:shadow-sm transition"
+                >
+                    ← До каталогу
+                </button>
+
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h1 className="font-serif text-3xl font-bold text-[#6E2A39] sm:text-4xl">

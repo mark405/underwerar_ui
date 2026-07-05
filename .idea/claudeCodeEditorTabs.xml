@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ClaudeCodeEditorTabs">
-    <option name="activeSessionId" value="2d094a82-3fcb-4e71-b496-61acdce10e25" />
+    <option name="activeSessionId" value="6bfb20ac-a1a0-49a7-859b-ec9549133df9" />
     <option name="openSessionIds">
       <list>
-        <option value="1836a5b5-f973-48a9-8aae-2c0f29f77860" />
-        <option value="980e1698-db80-4fae-a5fd-2f73f07877f1" />
-        <option value="2d094a82-3fcb-4e71-b496-61acdce10e25" />
+        <option value="6bfb20ac-a1a0-49a7-859b-ec9549133df9" />
       </list>
     </option>
     <option name="sessionPaths">
       <map>
-        <entry key="1836a5b5-f973-48a9-8aae-2c0f29f77860" value="/sessions/7ee6ecf4-fb22-4d4d-8083-7d7f8b06b490" />
-        <entry key="2d094a82-3fcb-4e71-b496-61acdce10e25" value="/sessions/588ded6b-f434-4604-850c-bb2121113339" />
-        <entry key="980e1698-db80-4fae-a5fd-2f73f07877f1" value="/sessions/67418d09-71b9-4e17-a0b6-634c99de8ea8" />
+        <entry key="6bfb20ac-a1a0-49a7-859b-ec9549133df9" value="/sessions/cca3fb5c-67b0-424e-94e2-d562cf75734a" />
       </map>
     </option>
     <option name="sessionTitles">
       <map>
-        <entry key="1836a5b5-f973-48a9-8aae-2c0f29f77860" value="can you access curent project files?" />
-        <entry key="2d094a82-3fcb-4e71-b496-61acdce10e25" value="what session limit i have" />
-        <entry key="980e1698-db80-4fae-a5fd-2f73f07877f1" value="add quantity to product mandatory field. admin can" />
+        <entry key="6bfb20ac-a1a0-49a7-859b-ec9549133df9" value="кнопку налаштування перенеси во вкладу admin order" />
       </map>
     </option>
   </component>

@@ -1,6 +1,7 @@
 "use client";
 
 import {useEffect, useState} from "react";
+import {useRouter} from "next/navigation";
 import {ShopLayout} from "@/app/components/ShopLayout";
 import {InfoPageService} from "@/app/api/infoPage";
 import {getAdminCredentials} from "@/app/api/api";
@@ -42,6 +43,7 @@ const DEFAULT_CONTENT = `Обмін та повернення
 Дякуємо за розуміння та відповідальне ставлення до оформлення замовлень.`;
 
 export default function InfoPage() {
+    const router = useRouter();
     const cardClass = "rounded-[2rem] border border-[#E5DED6] bg-[#F1ECE5] p-5 sm:p-6";
     const paragraphClass = "mt-3 whitespace-pre-line text-sm leading-relaxed text-[#6E2A39] first:mt-0 sm:text-base";
 
@@ -79,6 +81,14 @@ export default function InfoPage() {
     return (
         <ShopLayout>
             <section className="mx-auto max-w-3xl space-y-6 px-5 pb-32 pt-10">
+                <button
+                    type="button"
+                    onClick={() => router.push("/")}
+                    className="self-start px-4 py-2 cursor-pointer rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-sm hover:shadow-sm transition"
+                >
+                    ← До каталогу
+                </button>
+
                 {isAdmin && (
                     <div className="flex justify-end gap-3">
                         {isEditing ? (

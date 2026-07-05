@@ -6,6 +6,7 @@ import {useCart} from "@/app/components/CartContext";
 import {useDialog} from "@/app/components/DialogContext";
 import {BannerService} from "@/app/api/banner";
 import {BannerDTO} from "@/app/types/banner";
+import {clearAdminCredentials} from "@/app/api/api";
 
 interface ShopLayoutProps {
     children: ReactNode;
@@ -59,6 +60,11 @@ export function ShopLayout({children}: ShopLayoutProps) {
         setActiveIndex((prev) => Math.max(0, Math.min(prev, banners.length - 2)));
     };
 
+    const handleLogout = () => {
+        clearAdminCredentials();
+        router.push("/");
+    };
+
     return (
         <main className="min-h-screen bg-[#F6F4F0] pb-24 text-[#6E2A39]">
             <header className="sticky top-0 z-20 border-b border-[#E5DED6] bg-[#F6F4F0]/95 backdrop-blur">
@@ -96,6 +102,26 @@ active:scale-95
 "
                             >
                                 Замовлення
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="
+rounded-full
+bg-[#F6F4F0]
+px-3 py-1.5 sm:px-5 sm:py-2
+text-[10px] sm:text-xs uppercase tracking-wider text-[#6E2A39]
+border border-[#6E2A39]
+shadow-md
+transition-all
+hover:bg-[#E5DED6]
+hover:shadow-lg
+hover:scale-105
+active:scale-95
+"
+                            >
+                                Вийти
                             </button>
                         </div>
                     )}
