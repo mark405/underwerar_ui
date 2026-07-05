@@ -256,6 +256,7 @@ export default function OrderDetailsPage() {
                             <p><b>Email:</b> {order.email}</p>
                             <p><b>Доставка:</b> {order.deliveryType}</p>
                             <p><b>Адреса:</b> {order.deliveryAddress}</p>
+                            <p><b>Спосіб зв&apos;язку:</b> {order.contactByPhone ? "Телефон" : "Email"}</p>
                         </div>
                     )}
 

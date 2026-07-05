@@ -138,6 +138,10 @@ active:scale-95
                                     {o.deliveryType}
                                 </div>
 
+                                <div className="text-sm text-[#8A766C]">
+                                    Зв&apos;язок: {o.contactByPhone ? "Телефон" : "Email"}
+                                </div>
+
                                 <div className="text-sm mt-2">
                                     {o.deliveryAddress}
                                 </div>
