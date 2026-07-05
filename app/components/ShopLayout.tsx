@@ -77,11 +77,11 @@ export function ShopLayout({children}: ShopLayoutProps) {
                         </div>
                     </button>
                     {isAdmin && (
-                        <button
-                            type="button"
-                            onClick={() => router.push("/admin/orders")}
-                            className="
-absolute right-3 top-1/2 -translate-y-1/2
+                        <div className="absolute right-3 top-1/2 flex -translate-y-1/2 gap-2">
+                            <button
+                                type="button"
+                                onClick={() => router.push("/admin/orders")}
+                                className="
 rounded-full
 bg-[#6E2A39]
 px-3 py-1.5 sm:px-5 sm:py-2
@@ -94,9 +94,10 @@ hover:shadow-lg
 hover:scale-105
 active:scale-95
 "
-                        >
-                            Замовлення
-                        </button>
+                            >
+                                Замовлення
+                            </button>
+                        </div>
                     )}
                 </div>
             </header>

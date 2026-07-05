@@ -38,12 +38,34 @@ function AdminOrdersContent() {
             <div className="min-h-screen bg-[#F6F4F0] p-4 text-[#6E2A39] flex justify-center sm:p-6">
                 <div className="w-full max-w-4xl flex flex-col">
 
-                    <button
-                        onClick={() => router.push("/admin")}
-                        className="mb-4 self-start px-4 py-2 cursor-pointer rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-sm hover:shadow-sm transition"
-                    >
-                        ← На головну
-                    </button>
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                        <button
+                            onClick={() => router.push("/admin")}
+                            className="self-start px-4 py-2 cursor-pointer rounded-full border border-[#E5DED6] bg-[#F1ECE5] text-sm hover:shadow-sm transition"
+                        >
+                            ← На головну
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => router.push("/admin/settings")}
+                            className="
+rounded-full
+bg-[#F6F4F0]
+px-3 py-1.5 sm:px-5 sm:py-2
+text-[10px] sm:text-xs uppercase tracking-wider text-[#6E2A39]
+border border-[#6E2A39]
+shadow-md
+transition-all
+hover:bg-[#E5DED6]
+hover:shadow-lg
+hover:scale-105
+active:scale-95
+"
+                        >
+                            Налаштування
+                        </button>
+                    </div>
 
                     {/* HEADER */}
                     <div className="mb-6 flex flex-wrap items-center justify-between gap-3">

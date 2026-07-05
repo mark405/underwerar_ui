@@ -30,6 +30,7 @@ export default function OrderDetailsPage() {
 
     const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [resending, setResending] = useState(false);
     const [username, setUsername] = useState("");
     const [telephone, setTelephone] = useState("");
     const [email, setEmail] = useState("");
@@ -78,6 +79,21 @@ export default function OrderDetailsPage() {
         }
     };
 
+    const handleResendEmail = async () => {
+        if (!order) return;
+
+        setResending(true);
+
+        try {
+            await OrderService.resendEmail(order.id);
+            await alert("Лист надіслано повторно.");
+        } catch {
+            await alert("Не вдалося надіслати лист.");
+        } finally {
+            setResending(false);
+        }
+    };
+
     if (!order) {
         return (
             <div className="min-h-screen bg-[#F6F4F0] flex items-center justify-center text-[#6E2A39]">
@@ -114,14 +130,26 @@ export default function OrderDetailsPage() {
                         </div>
 
                         {!isEditing && (
-                            <button
-                                type="button"
-                                onClick={startEditing}
-                                className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-5 py-2 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6]"
-                                style={{cursor: "pointer"}}
-                            >
-                                Редагувати
-                            </button>
+                            <div className="flex flex-wrap gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleResendEmail}
+                                    disabled={resending || !order.email}
+                                    className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-5 py-2 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6] disabled:cursor-not-allowed disabled:opacity-60"
+                                    style={{cursor: "pointer"}}
+                                >
+                                    {resending ? "Надсилання..." : "Надіслати email повторно"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={startEditing}
+                                    className="rounded-full border border-[#E5DED6] bg-[#F1ECE5] px-5 py-2 text-sm font-medium text-[#6E2A39] transition hover:bg-[#E5DED6]"
+                                    style={{cursor: "pointer"}}
+                                >
+                                    Редагувати
+                                </button>
+                            </div>
                         )}
                     </div>
 

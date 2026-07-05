@@ -9,6 +9,7 @@ import {ProductService} from "@/app/api/product";
 import {NovaPostService} from "@/app/api/novapost";
 import {SettlementAreaDTO, SettlementDTO, WareHouseDTO} from "@/app/types/novapost";
 import {OrderService} from "@/app/api/order";
+import {ShopSettingsService} from "@/app/api/shopSettings";
 
 function OrderContent() {
     const router = useRouter();
@@ -43,7 +44,20 @@ function OrderContent() {
         phone: "",
         email: "",
         shippingType: "",
+        contactMethod: "email",
     });
+    const [pickupEnabled, setPickupEnabled] = useState(true);
+    useEffect(() => {
+        ShopSettingsService.get()
+            .then((settings) => setPickupEnabled(settings.pickupEnabled))
+            .catch(() => setPickupEnabled(true));
+    }, []);
+    useEffect(() => {
+        if (!pickupEnabled && form.shippingType === "pickup") {
+            handleChange("shippingType", "");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pickupEnabled]);
     useEffect(() => {
         if (form.shippingType !== "nova_poshta") {
             return;
@@ -196,6 +210,7 @@ function OrderContent() {
             email: form.email.trim(),
             deliveryType: form.shippingType,
             deliveryAddress,
+            contactByPhone: form.contactMethod === "phone",
             orderItems: orderItems.map(item => ({
                 productId: item.product.id,
                 quantity: item.quantity,
@@ -321,6 +336,36 @@ function OrderContent() {
                         </div>
 
                         <div className="sm:col-span-2">
+                            <div className="mb-2 text-sm text-[#8A766C]">
+                                Як з вами зв&apos;язатися щодо замовлення?
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => handleChange("contactMethod", "email")}
+                                    className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${
+                                        form.contactMethod === "email"
+                                            ? "border-[#6E2A39] bg-[#6E2A39] text-[#F6F4F0]"
+                                            : "border-[#E5DED6] bg-[#F6F4F0] text-[#6E2A39]"
+                                    }`}
+                                >
+                                    Email
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleChange("contactMethod", "phone")}
+                                    className={`rounded-2xl border px-4 py-3 text-sm font-medium transition ${
+                                        form.contactMethod === "phone"
+                                            ? "border-[#6E2A39] bg-[#6E2A39] text-[#F6F4F0]"
+                                            : "border-[#E5DED6] bg-[#F6F4F0] text-[#6E2A39]"
+                                    }`}
+                                >
+                                    Телефон
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="sm:col-span-2">
                             <select
                                 className={inputClass}
                                 value={form.shippingType}
@@ -328,7 +373,9 @@ function OrderContent() {
                             >
                                 <option value="">Тип доставки</option>
                                 <option value="nova_poshta">Нова Пошта</option>
-                                <option value="pickup">Самовивіз</option>
+                                {pickupEnabled && (
+                                    <option value="pickup">Самовивіз</option>
+                                )}
                             </select>
                             {errors.shippingType && (
                                 <p className="text-sm text-red-500 mt-1">{errors.shippingType}</p>

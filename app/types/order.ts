@@ -11,6 +11,7 @@ export interface OrderCreateRequest {
     email: string;
     deliveryType: string;
     deliveryAddress?: string;
+    contactByPhone: boolean;
     orderItems: OrderItemCreateRequest[];
 }
 
@@ -21,6 +22,7 @@ export interface OrderDTO {
     email: string;
     deliveryType: string;
     deliveryAddress: string;
+    contactByPhone: boolean;
     status: string;
     orderItems: [OrderItemDTO]
 }

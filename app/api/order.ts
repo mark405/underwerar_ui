@@ -64,4 +64,7 @@ export const OrderService = {
 
         return response.data;
     },
+    resendEmail: async (id: number) => {
+        await api.post(`/order/admin/${id}/resend-email`);
+    },
 };
