@@ -238,7 +238,7 @@ active:scale-95
                 <div className="mx-auto grid h-16 max-w-4xl grid-cols-3 divide-x divide-[#E5DED6] px-2 text-[#6E2A39] sm:h-20 sm:px-4">
                     <button
                         type="button"
-                        onClick={() => router.push("/info")}
+                        onClick={() => router.push(isAdmin ? "/admin/info" : "/info")}
                         className="flex flex-col items-center justify-center gap-1 text-[10px] uppercase tracking-wider sm:text-xs"
                         style={{cursor: "pointer"}}
                     >
